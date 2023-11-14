@@ -29,7 +29,7 @@ https://www.youtube.com/watch?v=BDV8zK6Y8EU
 
   A socket is a communication endpoint that allows processes on different devices to communicate over a network. It is identified by an IP address and a port number.
 
-Socket Programming:
+- Socket Programming:
 
   Socket programming involves using sockets to establish communication between processes over a network. In C++, the <sys/socket.h> and <arpa/inet.h> headers are commonly used for socket programming.
 
