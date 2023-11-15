@@ -42,17 +42,16 @@ std::string &Socket::getPassword(){return this->_password;}
 
 //SOCKET FUNCTIONS
 void Socket::parseSocket(){
-    std::cout << "hello from parse" << std::endl;
     if(_port.length() <= 0 || atoi(_port.c_str()) <= MIN_PORT || atoi(_port.c_str()) > MAX_PORT){
         std::cout << "Invalid port" << std::endl;
         exit(1);
     }
     if(_password.length() == 0){
         std::cout << "Invalid Password" << std::endl;
+        exit(1);
     }
 }
 
 void Socket::initSocket(){
-    std::cout << "hello from init" << std::endl;
     return ;
 }
