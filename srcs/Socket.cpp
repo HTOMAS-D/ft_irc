@@ -52,6 +52,33 @@ void Socket::parseSocket(){
     }
 }
 
+struct addrinfo *Socket::socketAddress(){
+    int status;
+    struct addrinfo hints;
+    struct addrinfo *servinfo;
+    
+    memset(&hints, 0, sizeof hints); // clear the array
+    hints.ai_family = AF_INET; // IPv4   ///// may be : AF_UNSPEC (unspecified ipv4 or ipv6)
+    hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
+    hints.ai_flags = AI_PASSIVE; // fill in my IP for me
+    
+    if ((status = getaddrinfo(NULL, _port.c_str(), &hints, &servinfo)) != 0) {
+        std::cout << "getaddrinfo error: " <<  gai_strerror(status) << std::endl;
+        exit(1);
+    }
+    // servinfo now points to a linked list of 1 or more struct addrinfos
+    // ... do everything until you don't need servinfo anymore ....
+    return(servinfo);
+}
+
 void Socket::initSocket(){
-    return ;
+    struct addrinfo *server_socket;
+
+
+    server_socket = socketAddress();
+    _socketFd = socket(server_socket->ai_family, server_socket->ai_socktype, server_socket->ai_protocol);
+    bind(_socketFd, server_socket->ai_addr, server_socket->ai_addrlen);
+    listen(_socketFd, BACKLOG);
+    std::cout << "back to init socket" << std::endl;
+    freeaddrinfo(server_socket); // free the linked-list
 }
