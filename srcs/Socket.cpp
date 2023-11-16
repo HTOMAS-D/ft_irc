@@ -73,12 +73,25 @@ struct addrinfo *Socket::socketAddress(){
 
 void Socket::initSocket(){
     struct addrinfo *server_socket;
+    int check_returns = 0;
 
 
     server_socket = socketAddress();
     _socketFd = socket(server_socket->ai_family, server_socket->ai_socktype, server_socket->ai_protocol);
-    bind(_socketFd, server_socket->ai_addr, server_socket->ai_addrlen);
-    listen(_socketFd, BACKLOG);
+    if(_socketFd < 0){
+        std::cout << "couldnt open the socket" << std::endl;
+        exit (-1);
+    }
+    check_returns = bind(_socketFd, server_socket->ai_addr, server_socket->ai_addrlen);
+    if(check_returns < 0){
+        std::cout << "couldnt bind the socket" << std::endl;
+        exit (-1);
+    }
+    check_returns = listen(_socketFd, BACKLOG);
+    if(check_returns < 0){
+        std::cout << "couldnt listen" << std::endl;
+        exit (-1);
+    }
     std::cout << "back to init socket" << std::endl;
     freeaddrinfo(server_socket); // free the linked-list
 }
