@@ -57,35 +57,40 @@ struct addrinfo *Socket::socketAddress(){
     struct addrinfo hints;
     struct addrinfo *servinfo;
     
-    memset(&hints, 0, sizeof hints); // clear the array
-    hints.ai_family = AF_INET; // IPv4   ///// may be : AF_UNSPEC (unspecified ipv4 or ipv6)
+    memset(&hints, 0, sizeof(hints)); // clear the array
+    hints.ai_family = AF_UNSPEC; // IPv4   ///// may be : AF_UNSPEC (unspecified ipv4 or ipv6) You can set it to AF_INET or AF_INET6 if you want ipv4 or ipv6 respectivelly
     hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
-    hints.ai_flags = AI_PASSIVE; // fill in my IP for me
+    hints.ai_flags = AI_PASSIVE; // ; this tells getaddrinfo() to assign the address of my local host to the socket structures.
     
     if ((status = getaddrinfo(NULL, _port.c_str(), &hints, &servinfo)) != 0) {
         std::cout << "getaddrinfo error: " <<  gai_strerror(status) << std::endl;
         exit(1);
     }
     // servinfo now points to a linked list of 1 or more struct addrinfos
-    // ... do everything until you don't need servinfo anymore ....
     return(servinfo);
 }
 
 void Socket::initSocket(){
-    struct addrinfo *server_socket;
+    struct addrinfo *server_socket, *p;
     int check_returns = 0;
+    int yes = 1;
 
 
     server_socket = socketAddress();
-    _socketFd = socket(server_socket->ai_family, server_socket->ai_socktype, server_socket->ai_protocol);
-    if(_socketFd < 0){
-        std::cout << "couldnt open the socket" << std::endl;
-        exit (-1);
-    }
-    check_returns = bind(_socketFd, server_socket->ai_addr, server_socket->ai_addrlen);
-    if(check_returns < 0){
-        std::cout << "couldnt bind the socket" << std::endl;
-        exit (-1);
+    for (p = server_socket; p != NULL; p = p->ai_next){
+        _socketFd = socket(server_socket->ai_family, server_socket->ai_socktype, server_socket->ai_protocol);
+        if(_socketFd < 0){
+            std::cout << "couldnt open the socket" << std::endl;
+            continue;
+        }
+        // address already in use
+        setsockopt(_socketFd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+        check_returns = bind(_socketFd, server_socket->ai_addr, server_socket->ai_addrlen);
+        if(check_returns < 0){
+            std::cout << "couldnt bind the socket" << std::endl;
+            close(_socketFd);
+        }
+        break ;
     }
     check_returns = listen(_socketFd, BACKLOG);
     if(check_returns < 0){

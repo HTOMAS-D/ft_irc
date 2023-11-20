@@ -1,5 +1,6 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
+#include <unistd.h>
 #include <string>
 #include <iostream>
 #include <sys/types.h>
