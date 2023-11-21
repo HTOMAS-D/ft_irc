@@ -28,8 +28,9 @@ Socket::Socket(std::string port, std::string password) : _port(port), _password(
     std::cout << "Socket Constructor called" << std::endl;
     FD_ZERO(&_master); // init fd list
     FD_ZERO(&_temp); // init fd list
-    this->parseSocket();
-    this->initSocket();
+    parseSocket();
+    initSocket();
+    startMainLoop();
 }
 
 Socket::~Socket(){
@@ -111,5 +112,52 @@ void Socket::initSocket(){
     FD_SET(_socketFd, &_master);
 
     _maxFd =  _socketFd; // Save the highest fd, and for the moment is this one
+}
 
+void Socket::startMainLoop(){
+    struct sockaddr_storage address; //struct to hold to store socket address (large enough to handle any struct, ipv4, ipv6 or other family)
+    socklen_t addrlen; // used to represent the lenght of or size of socket structs
+    int newFd;
+    int nbrBytes;
+    char buffer[BUFFER_SIZE];
+
+    while(1){
+        _temp = _master; //start by copying the master to the temp fd_set
+        if (select((_maxFd+1), &_temp, NULL, NULL, NULL) == -1){
+            std::cout << "Error selecting()" << std::endl;
+            exit(4);
+        }
+
+        //Iterate through successful connections to get data to read
+        for(int i = 0; i < _maxFd; i++){
+            if(i == _socketFd){
+                // this means we got a new connecion
+                addrlen = sizeof(address);
+
+                newFd = accept(_socketFd, (struct sockaddr *) &address, &addrlen);
+                if (newFd == -1){
+                    std::cout << "Error accepting connection" << std::endl;
+                }
+                else{
+                    FD_SET(newFd, &_master); // add new fd to master fd list
+                    if (newFd > _socketFd){ // check if theres a new max FD
+                        _maxFd = newFd;
+                    }
+                } 
+            }
+            //handle data from client
+            else{
+                //start by checking if the activity is either error or client closed connection
+                nbrBytes = recv(i, &buffer, sizeof(buffer), NULL);
+                if(nbrBytes <= 0){
+                    if (nbrBytes == 0){
+                        std::cout << "Client with socket " << i << " disconnected" << std::endl;
+                    }
+                    else{
+                        std::cout << "Random receive error" << std::endl;
+                    }
+                }
+            }
+        }
+    }
 }
