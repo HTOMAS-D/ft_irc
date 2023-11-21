@@ -148,8 +148,8 @@ void Socket::startMainLoop(){
             //handle data from client
             else{
                 //start by checking if the activity is either error or client closed connection
-                bzero(buffer, (sizeof(buffer) + 1));
-                nbrBytes = recv(i, &buffer, sizeof(buffer), NULL);
+                bzero(buffer, sizeof(buffer));
+                nbrBytes = recv(i, &buffer, sizeof(buffer), 0);
                 if(nbrBytes <= 0){
                     if (nbrBytes == 0){
                         std::cout << "Client with socket " << i << " disconnected" << std::endl;
