@@ -19,8 +19,11 @@ class Socket {
     private:
         std::string _port;
         std::string _password;
+        fd_set _master; // main fd list with *listening* fd also there 
+        fd_set _temp; //temp list for select()
         FileManage manager;
         int _socketFd;
+        int _maxFd;
         void parseSocket();
         void initSocket();
         struct addrinfo * socketAddress();

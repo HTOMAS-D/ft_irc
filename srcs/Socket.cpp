@@ -26,6 +26,8 @@
 //CONSTRUCTORS AND DESTRUCTORS
 Socket::Socket(std::string port, std::string password) : _port(port), _password(password){
     std::cout << "Socket Constructor called" << std::endl;
+    FD_ZERO(&_master); // init fd list
+    FD_ZERO(&_temp); // init fd list
     this->parseSocket();
     this->initSocket();
 }
@@ -75,15 +77,15 @@ void Socket::initSocket(){
     int check_returns = 0;
     int yes = 1;
 
-
     server_socket = socketAddress();
+
     for (p = server_socket; p != NULL; p = p->ai_next){
         _socketFd = socket(server_socket->ai_family, server_socket->ai_socktype, server_socket->ai_protocol);
         if(_socketFd < 0){
             std::cout << "couldnt open the socket" << std::endl;
             continue;
         }
-        // address already in use
+        // avoid address already in use message
         setsockopt(_socketFd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
         check_returns = bind(_socketFd, server_socket->ai_addr, server_socket->ai_addrlen);
         if(check_returns < 0){
@@ -92,11 +94,22 @@ void Socket::initSocket(){
         }
         break ;
     }
+    
+    if(p == NULL){
+        std::cout << "Unable to bind" << std::endl;
+        exit(1);
+    }
+
+    freeaddrinfo(server_socket); // free the linked-list
+
     check_returns = listen(_socketFd, BACKLOG);
     if(check_returns < 0){
         std::cout << "couldnt listen" << std::endl;
-        exit (-1);
+        exit (1);
     }
-    std::cout << "back to init socket" << std::endl;
-    freeaddrinfo(server_socket); // free the linked-list
+
+    FD_SET(_socketFd, &_master);
+
+    _maxFd =  _socketFd; // Save the highest fd, and for the moment is this one
+
 }
