@@ -148,6 +148,7 @@ void Socket::startMainLoop(){
             //handle data from client
             else{
                 //start by checking if the activity is either error or client closed connection
+                bzero(buffer, (sizeof(buffer) + 1));
                 nbrBytes = recv(i, &buffer, sizeof(buffer), NULL);
                 if(nbrBytes <= 0){
                     if (nbrBytes == 0){
@@ -156,6 +157,13 @@ void Socket::startMainLoop(){
                     else{
                         std::cout << "Random receive error" << std::endl;
                     }
+                    close(i);
+                    FD_CLR(i, &_master);
+                }
+                else{ // we got something from the client
+                        ////
+                        ////  NEXT WE NEED TO HANDLE THE MESSAGE
+                        ////
                 }
             }
         }
