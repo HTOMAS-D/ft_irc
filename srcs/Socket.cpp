@@ -116,60 +116,67 @@ void Socket::initSocket(){
 }
 
 void Socket::startMainLoop(){
-    struct sockaddr_storage address; //struct to hold to store socket address (large enough to handle any struct, ipv4, ipv6 or other family)
-    socklen_t addrlen; // used to represent the lenght of or size of socket structs
-    int newFd;
-    int nbrBytes;
-    char buffer[BUFFER_SIZE];
-
     while(1){
         _temp = _master; //start by copying the master to the temp fd_set
         if (select((_maxFd+1), &_temp, NULL, NULL, NULL) == -1){
             std::cout << "Error selecting()" << std::endl;
             exit(4);
         }
-
-        //Iterate through successful connections to get data to read
-        for(int i = 0; i < _maxFd; i++){
-            bzero(buffer, sizeof(buffer));
-            if (FD_ISSET(i, &_temp))
-            {
-            if(i == _socketFd){
-                // this means we got a new connecion
-                addrlen = sizeof(address);
-                newFd = accept(_socketFd, (struct sockaddr *) &address, &addrlen);
-                if (newFd == -1){
-                    std::cout << "Error accepting connection" << std::endl;
-                }
-                else{
-                    std::cout << "connection accepted" << std::endl;
-                    FD_SET(newFd, &_master); // add new fd to master fd list
-                    if (newFd > _socketFd){ // check if theres a new max FD
-                        _maxFd = newFd + 1;
-                    }
-                } 
-            }
-            //handle data from client
-            else{
-                //start by checking if the activity is either error or client closed connection
-                nbrBytes = recv(i, &buffer, sizeof(buffer), 0);
-                if(nbrBytes <= 0){
-                    if (nbrBytes == 0){
-                        std::cout << "Client with socket " << i << " disconnected" << std::endl;
-                    }
-                    else{
-                        std::cout << "Random receive error" << std::endl;
-                    }
-                    close(i);
-                    FD_CLR(i, &_master);
-                }
-                else{
-                    std::cout << buffer << std::endl;
-                }
-            }
-
-            }
-
-        }
+		getData();
     }
+}
+
+//Iterate through successful connections to get data to read
+void	Socket::getData() {
+
+    struct sockaddr_storage address; //struct to hold to store socket address (large enough to handle any struct, ipv4, ipv6 or other family)
+    socklen_t addrlen; // used to represent the lenght of or size of socket structs
+    int newFd;
+	
+	for(int i = 0; i < _maxFd; i++){
+		if (FD_ISSET(i, &_temp))
+		{
+			if(i == _socketFd){
+				// this means we got a new connecion
+				addrlen = sizeof(address);
+				newFd = accept(_socketFd, (struct sockaddr *) &address, &addrlen);
+				if (newFd == -1){
+					std::cout << "Error accepting connection" << std::endl;
+				}
+				else{
+					std::cout << "connection accepted" << std::endl;
+					FD_SET(newFd, &_master); // add new fd to master fd list
+					if (newFd > _socketFd){ // check if theres a new max FD
+						_maxFd = newFd + 1;
+					}
+				} 
+			}
+			//handle data from client
+			else
+				handleData(i);
+		}
+	}
+}
+
+//handle data from client
+void	Socket::handleData(int i) {
+    int nbrBytes;
+	char buffer[BUFFER_SIZE];
+
+	bzero(buffer, sizeof(buffer));
+	//start by checking if the activity is either error or client closed connection
+	nbrBytes = recv(i, &buffer, sizeof(buffer), 0);
+	if(nbrBytes <= 0){
+		if (nbrBytes == 0){
+			std::cout << "Client with socket " << i << " disconnected" << std::endl;
+		}
+		else{
+			std::cout << "Random receive error" << std::endl;
+		}
+		close(i);
+		FD_CLR(i, &_master);
+	}
+	else{
+		std::cout << "[" << i << "]" << buffer << std::endl; //handle message info ex. cmds usr info
+	}
 }

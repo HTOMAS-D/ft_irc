@@ -1,5 +1,7 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
+#include <cstring>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string>
 #include <iostream>
@@ -26,6 +28,8 @@ class Socket {
         void initSocket();
         struct addrinfo * socketAddress();
         void startMainLoop();
+        void getData();
+		void handleData(int i);
 
     public:
         Socket(std::string port, std::string password);
