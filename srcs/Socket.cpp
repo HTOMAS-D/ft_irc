@@ -108,10 +108,11 @@ void Socket::initSocket(){
         std::cout << "couldnt listen" << std::endl;
         exit (1);
     }
-
+    std::cout << _socketFd << std::endl;
+    FD_ZERO(&_master);
     FD_SET(_socketFd, &_master);
 
-    _maxFd =  _socketFd; // Save the highest fd, and for the moment is this one
+    _maxFd =  _socketFd + 1; // Save the highest fd, and for the moment is this one
 }
 
 void Socket::startMainLoop(){
@@ -130,25 +131,27 @@ void Socket::startMainLoop(){
 
         //Iterate through successful connections to get data to read
         for(int i = 0; i < _maxFd; i++){
+            bzero(buffer, sizeof(buffer));
+            if (FD_ISSET(i, &_temp))
+            {
             if(i == _socketFd){
                 // this means we got a new connecion
                 addrlen = sizeof(address);
-
                 newFd = accept(_socketFd, (struct sockaddr *) &address, &addrlen);
                 if (newFd == -1){
                     std::cout << "Error accepting connection" << std::endl;
                 }
                 else{
+                    std::cout << "connection accepted" << std::endl;
                     FD_SET(newFd, &_master); // add new fd to master fd list
                     if (newFd > _socketFd){ // check if theres a new max FD
-                        _maxFd = newFd;
+                        _maxFd = newFd + 1;
                     }
                 } 
             }
             //handle data from client
             else{
                 //start by checking if the activity is either error or client closed connection
-                bzero(buffer, sizeof(buffer));
                 nbrBytes = recv(i, &buffer, sizeof(buffer), 0);
                 if(nbrBytes <= 0){
                     if (nbrBytes == 0){
@@ -160,12 +163,13 @@ void Socket::startMainLoop(){
                     close(i);
                     FD_CLR(i, &_master);
                 }
-                else{ // we got something from the client
-                        ////
-                        ////  NEXT WE NEED TO HANDLE THE MESSAGE
-                        ////
+                else{
+                    std::cout << buffer << std::endl;
                 }
             }
+
+            }
+
         }
     }
 }
