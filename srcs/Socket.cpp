@@ -183,5 +183,5 @@ void	Socket::handleData(int i) {
 }
 
 void    Socket::handleMessage(int i, int nbrBytes){
-
+    if(FD_ISSET(i, &_master))
 }
