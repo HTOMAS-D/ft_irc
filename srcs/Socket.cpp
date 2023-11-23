@@ -149,6 +149,7 @@ void	Socket::getData() {
 					if (newFd > _socketFd){ // check if theres a new max FD
 						_maxFd = newFd + 1;
 					}
+                    Manager::addClient(newFd);
 				} 
 			}
 			//handle data from client
@@ -169,6 +170,7 @@ void	Socket::handleData(int i) {
 	if(nbrBytes <= 0){
 		if (nbrBytes == 0){
 			std::cout << "Client with socket " << i << " disconnected" << std::endl;
+            Manager::removeClient(i);
 		}
 		else{
 			std::cout << "Random receive error" << std::endl;
@@ -178,10 +180,10 @@ void	Socket::handleData(int i) {
 	}
 	else{
 		std::cout << "[" << i << "]" << buffer << std::endl; //handle message info ex. cmds usr info
-        handleMessage(i, nbrBytes);
+        // handleMessage(i, nbrBytes);
 	}
 }
 
-void    Socket::handleMessage(int i, int nbrBytes){
-    if(FD_ISSET(i, &_master))
-}
+// void    Socket::handleMessage(int i, int nbrBytes){
+//     if(FD_ISSET(i, &_master))
+// }

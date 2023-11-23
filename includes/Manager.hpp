@@ -4,11 +4,14 @@
 #include "Client.hpp"
 
 class Socket;
+class Client;
 
 class Manager{
     private:
-
+        static std::vector<Client> _clients;
     public:
+        static void addClient(int id);
+        static void removeClient(int id);
 
 };
 
