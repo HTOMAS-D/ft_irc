@@ -30,6 +30,7 @@ class Socket {
         void startMainLoop();
         void getData();
 		void handleData(int i);
+        void handleMessage(int i, int nbrBytes);
 
     public:
         Socket(std::string port, std::string password);

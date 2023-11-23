@@ -178,5 +178,10 @@ void	Socket::handleData(int i) {
 	}
 	else{
 		std::cout << "[" << i << "]" << buffer << std::endl; //handle message info ex. cmds usr info
+        handleMessage(i, nbrBytes);
 	}
+}
+
+void    Socket::handleMessage(int i, int nbrBytes){
+
 }
