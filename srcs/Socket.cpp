@@ -166,7 +166,7 @@ void	Socket::handleData(int i) {
 
 	bzero(buffer, sizeof(buffer));
 	//start by checking if the activity is either error or client closed connection
-	nbrBytes = recv(i, &buffer, sizeof(buffer), 0);
+	nbrBytes = recv(i, &buffer, sizeof(buffer) - 1, 0);
 	if(nbrBytes <= 0){
 		if (nbrBytes == 0){
 			std::cout << "Client with socket " << i << " disconnected" << std::endl;
@@ -179,7 +179,19 @@ void	Socket::handleData(int i) {
 		FD_CLR(i, &_master);
 	}
 	else{
-		std::cout << "[" << i << "]" << buffer << std::endl; //handle message info ex. cmds usr info
+		Manager::getClientBuffer(i) << buffer;
+		if (strchr(buffer, '\n')) {
+		// 	std::cout << "should go again" << std::endl;
+		// 	handleData(i); RECURSIVA CASO SEJA PRECISO FAZER HANDLE CLLIENTE A CLIENTE
+		// }
+		// else
+		// {
+			if (Manager::getClientBuffer(i).str()[BUFFER_SIZE - 1] == '\n') // NAO TA A FUNCIONAR
+				Manager::getClientBuffer(i).str()[BUFFER_SIZE - 1] = 0;
+			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str().c_str() << std::endl; //handle message info ex. cmds usr info
+
+		}
+		// client string << buffer;
         // handleMessage(i, nbrBytes);
 	}
 }

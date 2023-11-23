@@ -10,3 +10,7 @@ Client::~Client(){}
 int Client::getId(){
     return _clientID;
 }
+
+std::stringstream &Client::getBuffer() {
+	return (_buffer);
+}

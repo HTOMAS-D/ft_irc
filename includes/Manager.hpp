@@ -12,7 +12,9 @@ class Manager{
     public:
         static void addClient(int id);
         static void removeClient(int id);
-
+		static std::vector<Client> &getClient();
+		static std::vector<Client>::iterator getClientByID(int i);
+		static std::stringstream &getClientBuffer(int i);
 };
 
 #endif

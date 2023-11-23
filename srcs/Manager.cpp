@@ -15,3 +15,27 @@ void Manager::removeClient(int id){
         }
     }   
 }
+
+std::vector<Client> &Manager::getClient() {
+	return (_clients);
+}
+
+std::stringstream &Manager::getClientBuffer(int i) {
+	std::vector<Client>::iterator it = _clients.begin();
+
+	for ( ; it != _clients.end() ; it++) {
+		if (it->getId() == i)
+			break;
+	}
+	return (it->getBuffer());
+}
+
+std::vector<Client>::iterator Manager::getClientByID(int i) {
+	std::vector<Client>::iterator it = _clients.begin();
+
+	for ( ; it != _clients.end() ; it++) {
+		if (it->getId() == i)
+			break;
+	}
+	return (it);
+}
