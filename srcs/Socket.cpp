@@ -180,22 +180,13 @@ void	Socket::handleData(int i) {
 	}
 	else{
 		Manager::getClientBuffer(i) << buffer;
-		if (strchr(buffer, '\n')) {
-		// 	std::cout << "should go again" << std::endl;
-		// 	handleData(i); RECURSIVA CASO SEJA PRECISO FAZER HANDLE CLLIENTE A CLIENTE
-		// }
-		// else
-		// {
-			if (Manager::getClientBuffer(i).str()[Manager::getClientBuffer(i).str().size() - 1] == '\n') // NAO TA A FUNCIONAR
-			{
-				// std::cout << "entrou[" << Manager::getClientBuffer(i).str()[Manager::getClientBuffer(i).str().size() - 1] << "]" << std::endl;
-				Manager::getClientBuffer(i).str()[Manager::getClientBuffer(i).str().size() - 1] = 0;
-			}
-			// while ()
-			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str().c_str() << std::endl; //handle message info ex. cmds usr info
-
+		if (strchr(buffer, '\n'))
+		{
+			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str().c_str(); //handle message info ex. cmds usr info
+        	// handleMessage(i, nbrBytes);
+			Manager::getClientBuffer(i).clear();
 		}
-        // handleMessage(i, nbrBytes);
+		
 	}
 }
 
