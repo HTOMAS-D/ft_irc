@@ -1,6 +1,5 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
-#include <sstream>
 
 #include "Socket.hpp"
 
@@ -8,6 +7,8 @@ class Client{
     private:
 		std::stringstream _buffer;
 		int _clientID;
+		// std::string _nickName;
+		// std::string _userName;
     public:
         Client(int id);
 		Client(const Client &src) {_clientID = src._clientID;}
@@ -15,7 +16,7 @@ class Client{
         ~Client();
 
         //GETTERS
-        int getId();
+        int &getId();
 		std::stringstream &getBuffer();
 };
 

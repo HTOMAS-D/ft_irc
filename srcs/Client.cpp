@@ -7,7 +7,7 @@ Client::Client(int id){
 
 Client::~Client(){}
 
-int Client::getId(){
+int &Client::getId(){
     return _clientID;
 }
 

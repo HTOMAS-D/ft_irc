@@ -180,16 +180,22 @@ void	Socket::handleData(int i) {
 	}
 	else{
 		Manager::getClientBuffer(i) << buffer;
+		//std::cout << std::endl << "------------" << std::endl << buffer << std::endl << "------------" << std::endl;
 		if (strchr(buffer, '\n'))
 		{
 			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str().c_str(); //handle message info ex. cmds usr info
-        	// handleMessage(i, nbrBytes);
-			Manager::getClientBuffer(i).clear();
+        	handleMessage(i, nbrBytes);
+			Manager::getClientBuffer(i).str("");
 		}
-		
 	}
 }
 
-// void    Socket::handleMessage(int i, int nbrBytes){
-//     if(FD_ISSET(i, &_master))
-// }
+void    Socket::handleMessage(int i, int nbrBytes){
+    for (int j = 0; j < _maxFd; j++) {
+		if (FD_ISSET(j, &_master)) {
+			// except the listener and ourselves
+			if (j != _socketFd && j != i)
+				send(j, Manager::getClientBuffer(i).str().c_str(), nbrBytes, 0);
+		}
+	} 
+}
