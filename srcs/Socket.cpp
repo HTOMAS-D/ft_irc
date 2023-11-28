@@ -109,7 +109,7 @@ void Socket::initSocket(){
         exit (1);
     }
     std::cout << _socketFd << std::endl;
-    FD_ZERO(&_master);
+    FD_ZERO(&_master); //need it ?
     FD_SET(_socketFd, &_master);
 
     _maxFd =  _socketFd + 1; // Save the highest fd, and for the moment is this one
@@ -186,12 +186,15 @@ void	Socket::handleData(int i) {
 		// }
 		// else
 		// {
-			if (Manager::getClientBuffer(i).str()[BUFFER_SIZE - 1] == '\n') // NAO TA A FUNCIONAR
-				Manager::getClientBuffer(i).str()[BUFFER_SIZE - 1] = 0;
+			if (Manager::getClientBuffer(i).str()[Manager::getClientBuffer(i).str().size() - 1] == '\n') // NAO TA A FUNCIONAR
+			{
+				// std::cout << "entrou[" << Manager::getClientBuffer(i).str()[Manager::getClientBuffer(i).str().size() - 1] << "]" << std::endl;
+				Manager::getClientBuffer(i).str()[Manager::getClientBuffer(i).str().size() - 1] = 0;
+			}
+			// while ()
 			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str().c_str() << std::endl; //handle message info ex. cmds usr info
 
 		}
-		// client string << buffer;
         // handleMessage(i, nbrBytes);
 	}
 }
