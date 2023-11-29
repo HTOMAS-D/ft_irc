@@ -7,8 +7,8 @@ class Client{
     private:
 		std::stringstream _buffer;
 		int _clientID;
-		// std::string _nickName;
-		// std::string _userName;
+		std::string _nickName;
+		std::string _userName;
     public:
         Client(int id);
 		Client(const Client &src) {_clientID = src._clientID;}
@@ -16,6 +16,10 @@ class Client{
         ~Client();
 
         //GETTERS
+		std::string getNickName();
+		void setNickName(std::string nickName);
+		std::string getUserName();
+		void setUserName(std::string userName);
         int &getId();
 		std::stringstream &getBuffer();
 };
