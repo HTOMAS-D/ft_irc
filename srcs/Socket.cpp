@@ -179,23 +179,35 @@ void	Socket::handleData(int i) {
 		FD_CLR(i, &_master);
 	}
 	else{
+		std::cout << ">>entrou no else" << std::endl;
 		Manager::getClientBuffer(i) << buffer;
+		int newLine = Manager::getClientBuffer(i).str().find('\n');
+		std::cout << "new line = " << newLine << "|| buffer = " << buffer << std::endl;
 		//std::cout << std::endl << "------------" << std::endl << buffer << std::endl << "------------" << std::endl;
-		if (strchr(buffer, '\n'))
+		if (newLine >= 0)
 		{
-			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str().c_str(); //handle message info ex. cmds usr info
-        	handleMessage(i, nbrBytes);
-			Manager::getClientBuffer(i).str("");
+			std::string temp = Manager::getClientBuffer(i).str().substr(newLine + 1, Manager::getClientBuffer(i).str().size());
+			std::cout << "temp = " << temp << std::endl;
+			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, newLine + 1));
+			std::cout << "client buffer = " << Manager::getClientBuffer(i).str().c_str() << std::endl;
+			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str(); //handle message info ex. cmds usr info
+        	handleMessage(i);
+			Manager::getClientBuffer(i).str(temp);
+			std::cout << "New client buffer = " << Manager::getClientBuffer(i).str().c_str() << std::endl;
 		}
 	}
 }
 
-void    Socket::handleMessage(int i, int nbrBytes){
+void    Socket::handleMessage(int i){
+	std::stringstream temp;
+	//temp is equal to USER_x: "msg" in send we use size to get nbr of bytes in the total msg
+	temp << "USER_" << i << ": " << Manager::getClientBuffer(i).str();
     for (int j = 0; j < _maxFd; j++) {
 		if (FD_ISSET(j, &_master)) {
 			// except the listener and ourselves
-			if (j != _socketFd && j != i)
-				send(j, Manager::getClientBuffer(i).str().c_str(), nbrBytes, 0);
+			if (j != _socketFd && j != i) {
+				send(j, temp.str().c_str(), temp.str().size(), 0);
+			}
 		}
 	} 
 }
