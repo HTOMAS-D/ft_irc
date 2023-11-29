@@ -70,6 +70,7 @@ struct addrinfo *Socket::socketAddress(){
         exit(1);
     }
     // servinfo now points to a linked list of 1 or more struct addrinfos
+    // each of which contains a struct sockaddr that contains the ip address
     return(servinfo);
 }
 

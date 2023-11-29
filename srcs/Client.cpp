@@ -14,3 +14,20 @@ int &Client::getId(){
 std::stringstream &Client::getBuffer() {
 	return (_buffer);
 }
+
+std::string Client::getNickName() {
+    return (_nickName);
+}
+
+void Client::setNickName(std::string nickName) {
+    _nickName = nickName;
+}
+
+std::string Client::getUserName() {
+    return (_userName);
+}
+
+void Client::setUserName(std::string userName) {
+    _userName = userName;
+}
+
