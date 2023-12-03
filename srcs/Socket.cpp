@@ -191,7 +191,7 @@ void	Socket::handleData(int i) {
 			//std::cout << "Manager para executar = " << Manager::getClientBuffer(i).str().substr(0, newLine + 1) << std::endl;
 			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, newLine + 1));
 			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str();
-			handleMessage(i); //handle message info ex. cmds usr info
+			//handleMessage(i); //handle message info ex. cmds usr info
 			Manager::getClientBuffer(i).str(temp);
 			newLine = Manager::getClientBuffer(i).str().find('\n');
 			//std::cout << "New client buffer = " << Manager::getClientBuffer(i).str() << std::endl;

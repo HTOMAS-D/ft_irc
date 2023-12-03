@@ -9,7 +9,7 @@ class Client{
 		int _clientID;
 		std::string _nickName;
 		std::string _userName;
-		std::string _cmd;
+		std::vector<std::string> _cmd;
     public:
         Client(int id);
 		Client(const Client &src) {_clientID = src._clientID;}
@@ -24,7 +24,7 @@ class Client{
         int &getId();
 		std::stringstream &getBuffer();
 
-		std::string getCommand( void ) const;
+		std::vector<std::string> getCommand( void ) const;
 		void setCommand(std::string cmd );
 };
 
