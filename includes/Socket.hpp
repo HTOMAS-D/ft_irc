@@ -11,6 +11,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <map>
 
 
 #include "Manager.hpp"
@@ -32,7 +33,7 @@ class Socket {
         fd_set _temp; //temp list for select()
         int _socketFd;
         int _maxFd;
-        void parseSocket();
+        void parsePortPass();
         void initSocket();
         struct addrinfo * socketAddress();
         void startMainLoop();

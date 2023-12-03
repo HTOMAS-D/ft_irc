@@ -9,6 +9,7 @@ class Client{
 		int _clientID;
 		std::string _nickName;
 		std::string _userName;
+		std::string _cmd;
     public:
         Client(int id);
 		Client(const Client &src) {_clientID = src._clientID;}
@@ -22,6 +23,9 @@ class Client{
 		void setUserName(std::string userName);
         int &getId();
 		std::stringstream &getBuffer();
+
+		std::string getCommand( void ) const;
+		void setCommand(std::string cmd );
 };
 
 

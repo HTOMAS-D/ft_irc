@@ -1,6 +1,8 @@
 #include "../includes/Manager.hpp"
 
 std::vector<Client> Manager::_clients;
+std::map<std::string, eventFunction> Manager::_actionMap;
+
 
 void Manager::addClient(int id){
     _clients.push_back(Client(id));

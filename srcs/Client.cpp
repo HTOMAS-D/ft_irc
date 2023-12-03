@@ -27,7 +27,16 @@ std::string Client::getUserName() {
     return (_userName);
 }
 
+
+
 void Client::setUserName(std::string userName) {
     _userName = userName;
 }
 
+void Client::setCommand(std::string cmd) {
+	_cmd = cmd;
+}
+
+std::string Client::getCommand(void) const {
+   return (_cmd);
+}
