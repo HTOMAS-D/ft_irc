@@ -45,6 +45,18 @@ void Client::setCommand(std::string cmd) {
     }
 }
 
+void Client::setregularCommand(std::string cmd) {
+    _cmd.clear();
+    if (cmd[0] == '/')
+        cmd.erase(0, 1);
+    // std::cout << "antes cmd = " << cmd << std::endl;
+    // std::string holder = Parser::toUpper(cmd.substr(0, cmd.find(" ")));
+    _cmd.push_back(cmd);
+    // _cmd.push_back(cmd.substr(cmd.find(" ") + 1, cmd.size()));
+    for (unsigned long i = 0; i < _cmd.size(); i++) {
+        std::cout << _cmd[i] << std::endl;
+    }
+}
 
 std::vector<std::string> Client::getCommand(void) const {
    return (_cmd);

@@ -55,6 +55,12 @@ fclean: clean
 
 re: fclean all
 
+do:
+	@echo "🕐 make re ongoing.... 🕐"
+	@make re
+	@echo "$(GREEN) ------> Running on port 6666 with "pass" as password $(DEFAULT)"	
+	@./ircserv 6666 pass
+
 .PHONY: all clean re fclean
 
 god:
