@@ -14,9 +14,12 @@ std::vector<std::string> Parser::divideString(const std::string &str, char delim
 }
 
 int Parser::isAction(const std::string &command, int i){
-    if(Manager::getActionMap().find(command) != Manager::getActionMap().end()){
+    if(Manager::getActionMap().find(command) != Manager::getActionMap().end())
+    {
+        // if(Manager::getActionMap().find(command)->second != NULL){
         Manager::getClientByID(i)->setCommand(Manager::getClientBuffer(i).str());
         return 1;
+        // }
     }
     Manager::getClientByID(i)->setregularCommand(Manager::getClientBuffer(i).str());
     return 0;

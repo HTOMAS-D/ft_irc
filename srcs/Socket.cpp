@@ -210,16 +210,17 @@ void    Socket::handleMessage(int i){
 	//temp is equal to USER_x: "msg" in send we use size to get nbr of bytes in the total msg
 	temp << "USER_" << i << ": " << Manager::getClientBuffer(i).str();
     std::cout << "temp = " << temp.str() << std::endl;
-
     // Manager::getClientByID(i)->setCommand(Manager::getClientBuffer(i).str());
 
     for (int j = 0; j < _maxFd; j++) {
-
 		if (FD_ISSET(j, &_master)) {
             std::vector<Client>::iterator iter = Manager::getClientByID(i);
             Client &temporary = *Manager::getClientByID(i);
+            temporary.setCommand(Manager::getClientBuffer(i).str());
+            int isSomething =  Parser::isAction(temporary.getCommand()[0], i);
 			// except the listener and ourselves
-            if (j != _socketFd && Parser::isAction(temporary.getCommand()[0], i)) { //iter != Manager::getClient().end() && 
+            if (j != _socketFd && isSomething) {
+                isSomething = 0;
                 std::cout << "entered second if" << std::endl;
                 Manager::runActions(*iter);
             }
