@@ -31,16 +31,20 @@ void Client::setUserName(std::string userName) {
     _userName = userName;
 }
 
+
 void Client::setCommand(std::string cmd) {
+    _cmd.clear();
     if (cmd[0] == '/')
         cmd.erase(0, 1);
     std::cout << "antes cmd = " << cmd << std::endl;
-    _cmd.push_back(cmd.substr(0, cmd.find(" ")));
-    std::cout << "cmd = " << _cmd[0] << std::endl;
+    std::string holder = Parser::toUpper(cmd.substr(0, cmd.find(" ")));
+    _cmd.push_back(holder);
     _cmd.push_back(cmd.substr(cmd.find(" ") + 1, cmd.size()));
-    std::cout << "cmd1 = " << _cmd[1] << std::endl;
-
+    for (unsigned long i = 0; i < _cmd.size(); i++) {
+        std::cout << _cmd[i] << std::endl;
+    }
 }
+
 
 std::vector<std::string> Client::getCommand(void) const {
    return (_cmd);

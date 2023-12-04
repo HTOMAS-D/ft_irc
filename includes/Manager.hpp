@@ -31,6 +31,7 @@ class Manager{
         static void runActions(Client &client);
         static int	sendIrcMessage(std::string message, int clientId);
         static std::map<std::string, std::string> getChannelMap(std::string cmd);
+        static std::map<std::string, eventFunction> getActionMap();
 };
 
 #endif
