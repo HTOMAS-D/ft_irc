@@ -3,19 +3,12 @@
 void Manager::createMap(void) {
     _actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));
     _actionMap.insert(std::make_pair<std::string, eventFunction>("KICK", &joinAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("INVITE", &inviteAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("TOPIC", &topicAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("MODE", &modeAction));
+    _actionMap.insert(std::pair<std::string, eventFunction>("INVITE", &joinAction));
+    _actionMap.insert(std::pair<std::string, eventFunction>("TOPIC", &joinAction));
+    _actionMap.insert(std::pair<std::string, eventFunction>("MODE", &joinAction));
 }
 
-/* This function is to be used in the joinAction function to get the channel name and key*/
-// std::map<std::string, std::string> Manager::getChannelMap(std::string cmd){
-//     std::map<std::string, std::string> result;
-//     std::string channel, key;
 
-    
-// }
-// }
 void Manager::joinAction(Client &client){
     std::string cmd = client.getCommand()[0];  
 

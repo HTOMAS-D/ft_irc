@@ -219,7 +219,7 @@ void    Socket::handleMessage(int i){
             temporary.setCommand(Manager::getClientBuffer(i).str());
             int isSomething =  Parser::isAction(temporary.getCommand()[0], i);
 			// except the listener and ourselves
-            if (j != _socketFd && isSomething) { //iter != Manager::getClient().end() && 
+            if (j != _socketFd && isSomething) {
                 isSomething = 0;
                 std::cout << "entered second if" << std::endl;
                 Manager::runActions(*iter);
