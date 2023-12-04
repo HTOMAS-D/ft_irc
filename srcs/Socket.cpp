@@ -211,12 +211,7 @@ void    Socket::handleMessage(int i){
 	temp << "USER_" << i << ": " << Manager::getClientBuffer(i).str();
     std::cout << "temp = " << temp.str() << std::endl;
 
-    Manager::getClientByID(i)->setCommand(Manager::getClientBuffer(i).str());
-
-    // std::vector<std::string> commandVector = Parser::divideString(bufferHolder, ' ');
-
-    // temporary.setCommand(commandVector);
-
+    // Manager::getClientByID(i)->setCommand(Manager::getClientBuffer(i).str());
 
     for (int j = 0; j < _maxFd; j++) {
 
@@ -224,15 +219,16 @@ void    Socket::handleMessage(int i){
             std::vector<Client>::iterator iter = Manager::getClientByID(i);
             Client &temporary = *Manager::getClientByID(i);
 			// except the listener and ourselves
-            if (j != _socketFd && Parser::isAction(temporary.getCommand()[0])) { //iter != Manager::getClient().end() && 
+            if (j != _socketFd && Parser::isAction(temporary.getCommand()[0], i)) { //iter != Manager::getClient().end() && 
                 std::cout << "entered second if" << std::endl;
                 Manager::runActions(*iter);
             }
-            else
+            else{
                 std::cout << "trash" << std::endl;
                 // if (j != _socketFd && j != i) {
 			    //     send(j, temp.str().c_str(), temp.str().size(), 0);
 			    // }
+            }
 		}
 	} 
 }

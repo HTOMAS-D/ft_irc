@@ -28,6 +28,7 @@ class Client{
 		std::vector<std::string> getCommand( void ) const;
 		// void setCommand(std::vector <std::string> cmd);
 		void setCommand(std::string cmd);
+		void setregularCommand(std::string cmd);
 
 		
 };
