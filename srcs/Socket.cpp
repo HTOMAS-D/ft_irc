@@ -117,6 +117,7 @@ void Socket::initSocket(){
 
 void Socket::startMainLoop(){
     Manager::createMap();
+    Manager::createChannels();
     while(1){
         _temp = _master; //start by copying the master to the temp fd_set
         //Monitor multiple fd's and will block until activity is 
