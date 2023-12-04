@@ -2,6 +2,8 @@
 
 Client::Client(int id){
     _clientID = id;
+    _nickName = "";
+    _userName = "";
     std::cout << "Client created with id: " << id << std::endl;
 }
 

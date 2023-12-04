@@ -6,13 +6,14 @@
 
 class Socket;
 class Client;
+class Channel;
 
 typedef void (*eventFunction)(Client& client);
 
 class Manager{
     private:
         static std::vector<Client> _clients;
-        //static std::vector<Channel> _channels;
+        static std::map<std::string, Channel> _channels;
         static std::map<std::string, eventFunction> _actionMap;
 
     public:
@@ -21,6 +22,8 @@ class Manager{
 		static std::vector<Client> &getClient();
 		static std::vector<Client>::iterator getClientByID(int i);
 		static std::stringstream &getClientBuffer(int i);
+
+        static void createChannels();
 
         static void createMap();
         static void joinAction(Client &client);
