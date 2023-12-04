@@ -41,3 +41,8 @@ std::vector<Client>::iterator Manager::getClientByID(int i) {
 	}
 	return (it);
 }
+
+
+std::map<std::string, eventFunction> Manager::getActionMap(){
+	return _actionMap;
+}

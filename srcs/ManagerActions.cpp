@@ -2,7 +2,7 @@
 
 void Manager::createMap(void) {
     _actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("KICK", &kickAction));
+    _actionMap.insert(std::make_pair<std::string, eventFunction>("KICK", &joinAction));
     // _actionMap.insert(std::pair<std::string, eventFunction>("INVITE", &inviteAction));
     // _actionMap.insert(std::pair<std::string, eventFunction>("TOPIC", &topicAction));
     // _actionMap.insert(std::pair<std::string, eventFunction>("MODE", &modeAction));
@@ -37,20 +37,24 @@ int	Manager::sendIrcMessage(std::string message, int clientId)
 }
 
 void Manager::runActions(Client &client){
-    createMap();
-    //std::cout << "it = " << (_actionMap.find("JOIN"))->first << std::endl;
+    (void) client;
+    std::cout << "entered run" << std::endl;
+    // std::cout << "it = " << (_actionMap.find("JOIN"))->first << std::endl;
     std::string cmd = client.getCommand()[0];
     std::cout << "cmd = " << cmd << std::endl;
-    std::string action = cmd.substr(0, cmd.find(" "));
+    std::string action = cmd;
     std::cout << "size: " << action.size() << std::endl;
     std::cout << "Action =" << action << std::endl;
-    std::map<std::string, eventFunction>::iterator it = _actionMap.find(action);
-    std::cout << "First" << it->first << std::endl;
-    if (_actionMap.find(action) != _actionMap.end()){
-        std::cout << "Found action" << std::endl;
-        it->second(client);
-    }
-    else{
-        Manager::sendIrcMessage("421 :Unknown command", client.getId());
-    }
+    // if(Parser::isAction(cmd)){
+    //     return ;
+    // }
+    // std::map<std::string, eventFunction>::iterator it = _actionMap.find(action);
+    // std::cout << "First" << it->first << std::endl;
+    // if (_actionMap.find(action) != _actionMap.end()){
+    //     std::cout << "Found action" << std::endl;
+    //     // it->second(client);
+    // }
+    // else{
+    //     Manager::sendIrcMessage("421 :Unknown command", client.getId());
+    // }
 }

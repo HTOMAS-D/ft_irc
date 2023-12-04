@@ -11,6 +11,7 @@ class Client{
 		std::string _userName;
 		std::vector<std::string> _cmd;
     public:
+		Client(){};
         Client(int id);
 		Client(const Client &src) {_clientID = src._clientID;}
 		Client &operator=(const Client &src) {_clientID = src._clientID; return *this;}
@@ -25,7 +26,10 @@ class Client{
 		std::stringstream &getBuffer();
 
 		std::vector<std::string> getCommand( void ) const;
-		void setCommand(std::string cmd );
+		// void setCommand(std::vector <std::string> cmd);
+		void setCommand(std::string cmd);
+
+		
 };
 
 

@@ -15,6 +15,7 @@
 
 
 #include "Manager.hpp"
+#include "Parser.hpp"
 #include "Client.hpp"
 
 #define BACKLOG 10 // connections waiting to be accepted ()
@@ -48,6 +49,8 @@ class Socket {
         //GETTER AND SETTERS
         std::string &getPort();
         std::string &getPassword();
+
+		std::vector<std::string> divideString(const std::string &str, char delim);
 };
 
 
