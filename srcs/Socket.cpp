@@ -185,19 +185,14 @@ void	Socket::handleData(int i) {
 	else{
 
 		Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str() + buffer);
-		//std::cout << "client buffer before while :" << Manager::getClientBuffer(i).str() << std::endl;
 		int newLine = Manager::getClientBuffer(i).str().find('\n');
 		while (newLine >= 0) {
-			//std::cout << "new line = " << newLine << "|| buffer = " << Manager::getClientBuffer(i).str() << std::endl;
 			std::string temp = Manager::getClientBuffer(i).str().substr(newLine + 1, Manager::getClientBuffer(i).str().size());
-			//std::cout << "temp = " << temp << std::endl;
-			//std::cout << "Manager para executar = " << Manager::getClientBuffer(i).str().substr(0, newLine + 1) << std::endl;
 			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, newLine + 1));
 			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str();
 			handleMessage(i); //handle message info ex. cmds usr info
 			Manager::getClientBuffer(i).str(temp);
 			newLine = Manager::getClientBuffer(i).str().find('\n');
-			//std::cout << "New client buffer = " << Manager::getClientBuffer(i).str() << std::endl;
 		}
 	}
 }
@@ -205,32 +200,18 @@ void	Socket::handleData(int i) {
 
 
 void    Socket::handleMessage(int i){
-	std::stringstream temp;
-    // Client &temporary = *Manager::getClientByID(i);
-    std::string bufferHolder = Manager::getClientBuffer(i).str();
-	//temp is equal to USER_x: "msg" in send we use size to get nbr of bytes in the total msg
-	temp << "USER_" << i << ": " << Manager::getClientBuffer(i).str();
-    std::cout << "temp = " << temp.str() << std::endl;
-    // Manager::getClientByID(i)->setCommand(Manager::getClientBuffer(i).str());
-
-    for (int j = 0; j < _maxFd; j++) {
-		if (FD_ISSET(j, &_master)) {
-            std::vector<Client>::iterator iter = Manager::getClientByID(i);
-            Client &temporary = *Manager::getClientByID(i);
-            temporary.setCommand(Manager::getClientBuffer(i).str());
-            int isSomething =  Parser::isAction(temporary.getCommand()[0], i);
-			// except the listener and ourselves
-            if (j != _socketFd && isSomething) {
-                isSomething = 0;
-                std::cout << "entered second if" << std::endl;
-                Manager::runActions(*iter);
-            }
-            else{
-                std::cout << "trash" << std::endl;
-                // if (j != _socketFd && j != i) {
-			    //     send(j, temp.str().c_str(), temp.str().size(), 0);
-			    // }
-            }
-		}
-	} 
+    std::vector<Client>::iterator iter = Manager::getClientByID(i);
+    Client &temporary = *Manager::getClientByID(i);
+    temporary.setCommand(Manager::getClientBuffer(i).str());
+    if (Parser::isAction(temporary.getCommand()[0], i)) {
+        Manager::runActions(*iter);
+    }
+    else {
+        if (Manager::getClientByID(i)->getChannel().size()) {
+            Manager::getChannels().find(Manager::getClientByID(i)->getChannel())->second.clientMessage(i, Manager::getClientBuffer(i).str().c_str());
+        }
+        else {
+            send(i, "You are not in a channel, please join a channel!\n", 50, 0);
+        }
+    }
 }

@@ -7,8 +7,8 @@ class Client;
 class Channel{
     private:
 		std::string			_channelId; // channel name?
-        std::vector<Client> _ClientOperators; //talvez mapa
-        std::vector<Client> _Clients; // Tem todos os clients incluindo ops, para mandar msg a todos
+        std::vector<int> _ClientOperators; //talvez mapa
+        std::vector<int> _Clients; // Tem todos os clients incluindo ops, para mandar msg a todos
 		std::string			_key; //password used has flag too
 		std::string			_topic; // descricao do channel
 		//flags de MODES
@@ -24,9 +24,9 @@ class Channel{
         ~Channel();
 
 		//add client ENTROU
-		void addClient(Client &newClient);
+		void addClient(int newClient);
 		//add client to op
-		void addClientToOp(Client &newOp);
+		void addClientToOp(int newOp);
 		//remove someone
 		void removeClient(int id);
 		//remove a client from op
@@ -34,7 +34,7 @@ class Channel{
 		//other channel cmds
 
 		void channelMessage(const char *msg);
-
+		void clientMessage(int client, const char *msg);
 		//GETS
 
 		std::string &getChannelId();
@@ -43,7 +43,7 @@ class Channel{
 		int &getModeI();
 		int &getModeT();
 		int IsOp(int i);
-		std::vector<Client> &getClients();
+		std::vector<int> &getClients();
 		//SETS
 		void setKey(std::string pass) {_key = pass;}
 		void setTopic(std::string topic) {_topic = topic;}

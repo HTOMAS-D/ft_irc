@@ -12,21 +12,21 @@ void Manager::createChannels() {
 void Manager::addClient(int id){
     _clients.push_back(Client(id));
     std::cout << "Client " << id << " added to Clients" << std::endl;
-	for (int i = 0; i < (int)_clients.size(); i++) {
-		if(_clients[i].getId() == id) {
-			_channels.find("#123")->second.addClient(_clients[i]); //HARDCODED FOR TESTING
-		}
-	}
+	//_channels.find("#123")->second.addClient(id); //HARDCODED FOR TESTING
 }
 
 void Manager::removeClient(int id){
     for(int i = 0; i < (int)_clients.size(); i++){
         if(_clients[i].getId() == id){
             _clients.erase(_clients.begin() + i);
-			_channels.find("#123")->second.removeClient(id); //HARDCODED FOR TESTING
             std::cout << "Client " << id << " removed from Clients" << std::endl;
         }
     }
+	//HARDCODED FOR TESTING
+	for (int i = 0; i < (int)_channels.find("#123")->second.getClients().size(); i++) {
+		if (_channels.find("#123")->second.getClients()[i] == id)
+			_channels.find("#123")->second.removeClient(id);
+	}
 }
 
 std::vector<Client> &Manager::getClient() {
@@ -56,4 +56,8 @@ std::vector<Client>::iterator Manager::getClientByID(int i) {
 
 std::map<std::string, eventFunction> &Manager::getActionMap(){
 	return _actionMap;
+}
+
+std::map<std::string, Channel> &Manager::getChannels() {
+	return _channels;
 }

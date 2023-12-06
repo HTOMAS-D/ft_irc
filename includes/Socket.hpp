@@ -24,6 +24,9 @@
 #define BUFFER_SIZE 1000//number of bytes to handle the client received from the clients
 // Ports from 1024 to 49151 are registered ports, and ports from 49152 to 65535 are dynamic or private ports. 
 // Ideally it should be used in the range 49152 to 65535
+
+#define MAXNAME 20
+
 class FileManage;
 
 class Socket {

@@ -10,17 +10,20 @@ class Client{
 		std::string _nickName;
 		std::string _userName;
 		std::vector<std::string> _cmd;
+		std::string _channel;
     public:
 		Client(){};
         Client(int id);
-		Client(const Client &src) {_clientID = src._clientID;}
-		Client &operator=(const Client &src) {_clientID = src._clientID; return *this;}
+		Client(const Client &src);
+		Client &operator=(const Client &src);
         ~Client();
 
         //GETTERS
-		std::string getNickName();
+		std::string &getChannel();
+		void setChannel(std::string channel);
+		std::string &getNickName();
 		void setNickName(std::string nickName);
-		std::string getUserName();
+		std::string &getUserName();
 		void setUserName(std::string userName);
         int &getId();
 		std::stringstream &getBuffer();

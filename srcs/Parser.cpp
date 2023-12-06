@@ -15,12 +15,7 @@ std::vector<std::string> Parser::divideString(const std::string &str, char delim
 
 int Parser::isAction(const std::string &command, int i){
     if(Manager::getActionMap().find(command) != Manager::getActionMap().end())
-    {
-        // if(Manager::getActionMap().find(command)->second != NULL){
-        Manager::getClientByID(i)->setCommand(Manager::getClientBuffer(i).str());
         return 1;
-        // }
-    }
     Manager::getClientByID(i)->setregularCommand(Manager::getClientBuffer(i).str());
     return 0;
 }
@@ -33,4 +28,18 @@ std::string Parser::toUpper(const std::string &str){
     }
 
     return result;
+}
+
+int Parser::nickParse(int client, std::string nick) {
+    if (nick.size() > MAXNAME || !nick.size()) {
+        send(client, "Wrong nickname size\n", 20, 0);
+        return 0;
+    }
+    for (int i = 0; i < (int)Manager::getClient().size(); i++) {
+        if (Manager::getClient()[i].getNickName() == nick) {
+            send(client, "Nickname already in use\n", 24, 0);
+            return 0;
+        }
+    }
+    return 1;
 }
