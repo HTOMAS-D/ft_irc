@@ -150,6 +150,3 @@ std::vector<std::string> Channel::getNamesList() {
 
     return namesList;
 }
-
-O join já ta funcional no hexchat! Tive de sacar os hostnames dos clients no ficheiro do socket, por isso o construtor do cliente tb recebe isso agora, pq é algo necessario para mandar para o protocolo irc
-Depois, o problema foi arranjar no join uma lista com todos os nicknames que tao num dado canal para mandar a ultimas duas mensagens do protocolo irc necessarias e para isso inventei umas funcoes por isso, o codigo é capaz de tar meio uma mess pq queria mesmo fazer isto antes de dormir, mas vou dar push já e amanha arrumo se for preciso
