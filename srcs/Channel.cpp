@@ -24,11 +24,11 @@ Channel::~Channel(){}
 
 void    Channel::addClient(int newClient) {
     std::stringstream temp;
-    for(int i = 0; i < (int)_Clients.size(); i++){
-        if(_Clients[i] == newClient){
-           return ;
-        }
-    }
+    // for(int i = 0; i < (int)_Clients.size(); i++){
+    //     if(_Clients[i] == newClient){
+    //        return ;
+    //     }
+    // }
     _Clients.push_back(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
     temp << Manager::getClientByID(newClient)->getNickName() << " has been added to the channel!";
@@ -82,6 +82,16 @@ void    Channel::clientMessage(int client, const char *msg) {
     }
 }
 
+bool Channel::checkClient(int clientId) const {
+    // Iterate through the clients and check if the client is already in the channel
+    for (std::vector<int>::const_iterator it = _Clients.begin(); it != _Clients.end(); ++it) {
+        if (*it == clientId) {
+            return true; // Client is already in the channel
+        }
+    }
+    return false; // Client is not in the channel
+}
+
 std::string &Channel::getChannelId() {
     return _channelId;
 }
@@ -128,3 +138,18 @@ void Channel::setModeT() {
     else
         _ModeT = 1;
 }
+
+std::vector<std::string> Channel::getNamesList() {
+    std::vector<std::string> namesList;
+
+    for (int i = 0; i < (int)_Clients.size(); i++) {
+        int clientId = _Clients[i];
+        std::string nickname = Manager::getNickbyID(clientId);
+        namesList.push_back(nickname);
+    }
+
+    return namesList;
+}
+
+O join já ta funcional no hexchat! Tive de sacar os hostnames dos clients no ficheiro do socket, por isso o construtor do cliente tb recebe isso agora, pq é algo necessario para mandar para o protocolo irc
+Depois, o problema foi arranjar no join uma lista com todos os nicknames que tao num dado canal para mandar a ultimas duas mensagens do protocolo irc necessarias e para isso inventei umas funcoes por isso, o codigo é capaz de tar meio uma mess pq queria mesmo fazer isto antes de dormir, mas vou dar push já e amanha arrumo se for preciso

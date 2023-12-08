@@ -7,10 +7,12 @@ std::map<std::string, Channel> Manager::_channels;
 
 void Manager::createChannels() {
 	_channels.insert(std::make_pair<std::string, Channel>("#123", Channel("#123", "", "Exemplo")));
+	_channels.insert(std::make_pair<std::string, Channel>("#567", Channel("#567", "", "Other")));
+
 }
 
-void Manager::addClient(int id){
-    _clients.push_back(Client(id));
+void Manager::addClient(int id, std::string hostname){
+    _clients.push_back(Client(id, hostname));
     std::cout << "Client " << id << " added to Clients" << std::endl;
 	//_channels.find("#123")->second.addClient(id); //HARDCODED FOR TESTING
 }
@@ -60,4 +62,13 @@ std::map<std::string, eventFunction> &Manager::getActionMap(){
 
 std::map<std::string, Channel> &Manager::getChannels() {
 	return _channels;
+}
+
+std::string Manager::getNickbyID(int id) {
+	std::vector<Client>::iterator it = _clients.begin();
+	for ( ; it != _clients.end() ; it++) {
+		if (it->getId() == id)
+			break;
+	}
+	return (it->getNickName());
 }

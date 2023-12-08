@@ -12,6 +12,8 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 
 #include "Manager.hpp"

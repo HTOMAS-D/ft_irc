@@ -117,7 +117,7 @@ void Socket::initSocket(){
 
 void Socket::startMainLoop(){
     Manager::createMap();
-    Manager::createChannels();
+    //Manager::createChannels();
     while(1){
         _temp = _master; //start by copying the master to the temp fd_set
         //Monitor multiple fd's and will block until activity is 
@@ -129,6 +129,8 @@ void Socket::startMainLoop(){
 		getData(); //process any incoming data from clients.
     }
 }
+
+void    acceptedConnection(int newFd);
 
 /* Iterate through successful connections to get data to read */
 void	Socket::getData() {
@@ -148,12 +150,11 @@ void	Socket::getData() {
 					std::cout << "Error accepting connection" << std::endl;
 				}
 				else{
-					std::cout << "connection accepted" << std::endl;
 					FD_SET(newFd, &_master); // add new fd to master fd list
 					if (newFd > _socketFd){ // check if theres a new max FD
 						_maxFd = newFd + 1;
 					}
-                    Manager::addClient(newFd);
+                    acceptedConnection(newFd);
 				} 
 			}
 			//handle data from client
@@ -161,6 +162,29 @@ void	Socket::getData() {
 				handleData(i);
 		}
 	}
+}
+
+void    acceptedConnection(int newFd){
+    // Use getpeername to obtain the address of the connecting client
+    struct sockaddr_storage peerAddress;
+    socklen_t peerAddrlen = sizeof(peerAddress);
+    getpeername(newFd, (struct sockaddr*)&peerAddress, &peerAddrlen);
+
+    char host[NI_MAXHOST];
+
+    // Use inet_ntoa to convert the address to a string
+    std::string ipAddress = inet_ntoa(((struct sockaddr_in*)&peerAddress)->sin_addr);
+
+    // Use gethostbyname to obtain the hostname
+    struct hostent* hostEntry = gethostbyname(ipAddress.c_str());
+    if (hostEntry) {
+        strncpy(host, hostEntry->h_name, NI_MAXHOST);
+        host[NI_MAXHOST - 1] = '\0';
+        std::cout << "Connection accepted from " << host << std::endl;
+        Manager::addClient(newFd, host); // Pass the hostname to addClient
+    } else {
+        std::cerr << "gethostbyname failed" << std::endl;
+    }
 }
 
 /* Handle data from client */

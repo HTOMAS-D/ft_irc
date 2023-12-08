@@ -49,6 +49,9 @@ class Channel{
 		void setTopic(std::string topic) {_topic = topic;}
 		void setModeI();
 		void setModeT();
+
+		bool checkClient(int clientId) const;
+		std::vector<std::string> getNamesList();
 };
 
 #endif

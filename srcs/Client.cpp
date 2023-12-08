@@ -1,10 +1,11 @@
 #include "../includes/Client.hpp"
 
-Client::Client(int id){
+Client::Client(int id, std::string hostname){
     _clientID = id;
     _nickName = "";
     _userName = "";
     _channel = "";
+    _hostname = hostname;
     std::cout << "Client created with id: " << id << std::endl;
 }
 
@@ -48,9 +49,16 @@ void Client::setUserName(std::string userName) {
     _userName = userName;
 }
 
+std::string &Client::getHostName() {
+    return _hostname;
+}
+
+void Client::setHostName(std::string hostname) {
+    _hostname = hostname;
+}
 
 void Client::setCommand(std::string cmd) {
-    cmd.pop_back();
+    //cmd.pop_back();
     _cmd.clear();
     if (cmd[0] == '/')
         cmd.erase(0, 1);
@@ -85,4 +93,10 @@ std::string &Client::getChannel() {
 }
 void Client::setChannel(std::string channel) {
     _channel = channel;
+}
+
+std::string Client::getClientPrefix() {
+    std::string clientPrefix = getNickName() + "!" + \
+        getUserName() + "@" + getHostName();
+    return clientPrefix;
 }
