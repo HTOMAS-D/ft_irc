@@ -72,3 +72,12 @@ std::string Manager::getNickbyID(int id) {
 	}
 	return (it->getNickName());
 }
+
+int Manager::getIDbyNick(std::string nick) {
+	std::vector<Client>::iterator it = _clients.begin();
+	for ( ; it != _clients.end() ; it++) {
+		if (it->getNickName() == nick)
+			return (it->getId());
+	}
+	return (-1);
+}

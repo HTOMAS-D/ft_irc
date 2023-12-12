@@ -9,6 +9,7 @@ class Channel{
 		std::string			_channelId; // channel name?
         std::vector<int> _ClientOperators; //talvez mapa
         std::vector<int> _Clients; // Tem todos os clients incluindo ops, para mandar msg a todos
+		std::vector<int> _invited; //users invited to channel
 		std::string			_key; //password used has flag too
 		std::string			_topic; // descricao do channel
 		//flags de MODES
@@ -19,18 +20,22 @@ class Channel{
 		Channel(std::string id);
 		Channel(std::string id, std::string pass);
 		Channel(std::string id, std::string pass, std::string topic);
-		Channel(const Channel &src) {_channelId = src._channelId;}
-		Channel &operator=(const Channel &src) {_channelId = src._channelId; return *this;}
+		Channel(const Channel &src);
+		Channel &operator=(const Channel &src);
         ~Channel();
 
 		//add client ENTROU
 		void addClient(int newClient);
 		//add client to op
 		void addClientToOp(int newOp);
+		//add client to invited
+		void addInvited(int newInvited);
 		//remove someone
 		void removeClient(int id);
 		//remove a client from op
 		void removeOp(int id);
+		//remove invited
+		void removeInvited(int id);
 		//other channel cmds
 
 		void channelMessage(const char *msg);
@@ -43,6 +48,7 @@ class Channel{
 		int &getModeI();
 		int &getModeT();
 		int IsOp(int i);
+		int IsInvited(int i);
 		std::vector<int> &getClients();
 		//SETS
 		void setKey(std::string pass) {_key = pass;}

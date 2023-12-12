@@ -2,17 +2,40 @@
 
 void Manager::nickAction(Client &client){
     std::string temp = client.getCommand()[1];
-    // temp.pop_back();
+    temp.pop_back();
     if (Parser::nickParse(client.getId(), temp))
         client.setNickName(temp);
-    std::cout << "nickname set to " << client.getNickName(); 
+    std::cout << "nickname set to " << client.getNickName() << std::endl; 
+}
+
+void Manager::inviteAction(Client &client) {
+    if (Parser::inviteParse(client)) {
+        //prepare arguments
+        std::vector<std::string> command = client.getCommand();
+        std::string nick = command[1].substr(0, command[1].find(" "));
+        int id = Manager::getIDbyNick(nick);
+        std::string channel = command[1].substr(command[1].find(" ") + 1, command[1].size());
+        channel.pop_back();
+        //prepare msg for user
+        std::stringstream invMessage;
+        invMessage << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
+        << " INVITE " << nick << " " << channel << "\r\n";
+        //add invited id to channel's list
+        Manager::getChannels().find(channel)->second.addInvited(id);
+        send(client.getId(), invMessage.str().c_str(), invMessage.str().size(), 0);
+        //prepare msg for invited user
+        std::stringstream invNotif;
+        invNotif << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
+        << " NOTICE " << nick << " you have been invited ti join " << channel << "\r\n";
+        send(id, invNotif.str().c_str(), invNotif.str().size(), 0);
+    }
 }
 
 void Manager::createMap(void) {
     _actionMap["JOIN"] = joinAction;
     _actionMap["NICK"] = nickAction;
+    _actionMap["INVITE"] = inviteAction;
     //_actionMap["KICK"] = kickAction;
-    // _actionMap["INVITE"] = inviteAction;
     // _actionMap["TOPIC"] = topicAction;
     // _actionMap["MODE"] = modeAction;
     //_actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));
@@ -31,13 +54,16 @@ void Manager::joinAction(Client &client){
         return;
     }
     std::string channelName = command[1];
+    channelName.pop_back();
     if (channelName[0] != '#'){
         Manager::sendIrcMessage("403 :No such channel", client.getId());
         return;
     }
     //Check if the channel exists, create if not
-    if (_channels.find(channelName) == _channels.end())
-        _channels.insert(std::make_pair<std::string, Channel>(client.getCommand()[1], Channel(client.getCommand()[1], "", "")));
+    if (_channels.find(channelName) == _channels.end()) {
+        std::cout << "aqui 4" << std::endl;
+        _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName, "", "")));
+    }
     
     //Check if the client is already in the channel
     if (_channels.find(channelName)->second.checkClient(client.getId())) {
@@ -106,7 +132,3 @@ void Manager::runActions(Client &client){
         Manager::sendIrcMessage("421 :Unknown command", client.getId());
     }
 }
-
-O join já ta funcional no hexchat! Tive de sacar os hostnames dos clients no ficheiro do socket, por isso o construtor do cliente tb recebe isso agora, pq é algo necessario para mandar para o protocolo irc
-Depois, o problema foi arranjar no join uma lista com todos os nicknames que tao num dado canal para mandar a ultimas duas mensagens do protocolo irc necessarias e para isso inventei umas funcoes no channel e no client.
-Por isso, o codigo ficou um bcd uma mess pq queria mesmo fazer isto antes de dormir, mas vou dar push já e amanha arrumo o codigo todo. Amanha vou tentar acabar o resto das actions com protocolo

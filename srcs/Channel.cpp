@@ -3,21 +3,52 @@
 Channel::Channel(std::string id){
     _channelId = id;
     _key = "";
+    _topic = "";
+    _ModeI = 0;
+    _ModeT = 0;
     std::cout << "Channel created with id: " << id << std::endl;
 }
 
 Channel::Channel(std::string id, std::string pass){
     _channelId = id;
     _key = pass;
+    _topic = "";
+    _ModeI = 0;
+    _ModeT = 0;
     std::cout << "Channel created with id: " << id << std::endl;
 }
 
 Channel::Channel(std::string id, std::string pass, std::string topic){
+    std::cout << "aqui 3" << std::endl;
     _channelId = id;
     _key = pass;
     _topic = topic;
+    _ModeI = 0;
+    _ModeT = 0;
     std::cout << "Channel created with id: " << id << std::endl \
-    << "With topic = " << _topic << std::endl;
+    << "Topic = " << _topic << std::endl;
+    // << "Pass = " << _key << std::endl \
+    // << "ModeI = " << _ModeI << std::endl\
+    // << "ModeT = " << _ModeT << std::endl;
+}
+
+Channel::Channel(const Channel &src) {
+    std::cout << "aqui 1" << std::endl;
+    _channelId = src._channelId;
+    _key = src._key;
+    _topic = src._topic;
+    _ModeI = src._ModeI;
+    _ModeT = src._ModeT;
+}
+
+Channel &Channel::operator=(const Channel &src) {
+    std::cout << "aqui 2" << std::endl;
+    _channelId = src._channelId;
+    _key = src._key;
+    _topic = src._topic;
+    _ModeI = src._ModeI;
+    _ModeT = src._ModeT;
+    return (*this);
 }
 
 Channel::~Channel(){}
@@ -30,6 +61,7 @@ void    Channel::addClient(int newClient) {
     //     }
     // }
     _Clients.push_back(newClient);
+    removeInvited(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
     temp << Manager::getClientByID(newClient)->getNickName() << " has been added to the channel!";
     channelMessage(temp.str().c_str());
@@ -44,6 +76,15 @@ void    Channel::addClientToOp(int newOp) {
     }
     _ClientOperators.push_back(newOp);
     send(newOp, temp.c_str(), temp.size(), 0);
+}
+
+void    Channel::addInvited(int newInvited) {
+    for(int i = 0; i < (int)_invited.size(); i++){
+        if(_invited[i] == newInvited){
+           return ;
+        }
+    }
+    _invited.push_back(newInvited);
 }
 
 void    Channel::removeClient(int id) { //SERA QUE DEVO RETIRAR TAMBEM JA DOS OPS???
@@ -62,6 +103,14 @@ void    Channel::removeOp(int id) {
         }
     }
     send(id, temp.c_str(), temp.size(), 0);
+}
+
+void    Channel::removeInvited(int id) {
+    for(int i = 0; i < (int)_invited.size(); i++){
+        if(_invited[i] == id){
+            _invited.erase(_invited.begin() + i);
+        }
+    }
 }
 
 void	Channel::channelMessage(const char *msg) {
@@ -121,9 +170,18 @@ int Channel::IsOp(int id) {
 	return 0;
 }
 
- std::vector<int> &Channel::getClients() {
-    return _Clients;
- }
+int Channel::IsInvited(int id) {
+	for(int i = 0; i < (int)_ClientOperators.size(); i++){
+        if(_ClientOperators[i] == id){
+            return (1);
+        }
+    }
+	return 0;
+}
+
+std::vector<int> &Channel::getClients() {
+return _Clients;
+}
 
 void Channel::setModeI() {
     if (_ModeI)

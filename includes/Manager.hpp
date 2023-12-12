@@ -23,6 +23,7 @@ class Manager{
 		static std::vector<Client>::iterator getClientByID(int i);
 		static std::stringstream &getClientBuffer(int i);
         static std::string getNickbyID(int id);
+        static int getIDbyNick(std::string nick);
 
         static void createChannels();
 
