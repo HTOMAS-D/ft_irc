@@ -1,11 +1,15 @@
 #include "../includes/Manager.hpp"
 
 void Manager::nickAction(Client &client){
-    std::string temp = client.getCommand()[1];
-    temp.pop_back();
-    if (Parser::nickParse(client.getId(), temp))
+    if (Parser::nickParse(client)) {
+        std::string temp = client.getCommand()[1];
+        temp.pop_back();
+        //preparing msg of successfull change
+        std::stringstream nickMsg;
+        nickMsg << ":" << client.getNickName() << " NICK :" << temp << "\r\n";
+        send(client.getId(), nickMsg.str().c_str(), nickMsg.str().size(), 0);
         client.setNickName(temp);
-    std::cout << "nickname set to " << client.getNickName() << std::endl; 
+    }
 }
 
 void Manager::inviteAction(Client &client) {

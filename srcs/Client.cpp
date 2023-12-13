@@ -7,6 +7,7 @@ Client::Client(int id, std::string hostname){
     _channel = "";
     _hostname = hostname;
     std::cout << "Client created with id: " << id << std::endl;
+    std::cout << "nick == " << _nickName << std::endl;
 }
 
 Client::~Client(){}

@@ -30,14 +30,22 @@ std::string Parser::toUpper(const std::string &str){
     return result;
 }
 
-int Parser::nickParse(int client, std::string nick) {
-    if (nick.size() > MAXNAME || !nick.size()) {
-        send(client, "Wrong nickname size\n", 20, 0);
-        return 0;
+int Parser::nickParse(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    if (command.size() < 2 || command[1].size() == 1) {
+        Manager::sendIrcMessage("431 NICK :No nick given", client.getId());
+        return (0);
+    }
+    std::string nick = command[1];
+    nick.pop_back();
+    //check if it is too long, starts with special cha or has space
+    if (nick.size() > 9 || nick.c_str()[0] == '#' || nick.c_str()[0] == ':' || (nick.find(" ") < nick.size() && (int)nick.find(" ") != -1)) {
+        Manager::sendIrcMessage("432 NICK :Erroneus nickname", client.getId());
+        return (0);
     }
     for (int i = 0; i < (int)Manager::getClient().size(); i++) {
         if (Manager::getClient()[i].getNickName() == nick) {
-            send(client, "Nickname already in use\n", 24, 0);
+                Manager::sendIrcMessage("433 NICK :Nickname is already in use", client.getId());
             return 0;
         }
     }
@@ -45,12 +53,12 @@ int Parser::nickParse(int client, std::string nick) {
 }
 
 int Parser::inviteParse(Client &client) {
-    // std::cout << "cmd = " << client.getCommand()[1] << std::endl << "find == " << client.getCommand()[1].find(" ") << std::endl;
-    if (client.getCommand().size() < 2 || client.getCommand()[1].find(" ") < 0 || client.getCommand()[1].find(" ") > client.getCommand()[1].size()) {
+    std::vector<std::string> command = client.getCommand();
+    // std::cout << "cmd = " << command[1] << std::endl << "find == " << (int)command[1].find(" ") << std::endl;
+    if (command.size() < 2 || (int)command[1].find(" ") < 0) {
         Manager::sendIrcMessage("461 INVITE :Not enough parameters", client.getId());
         return (0);
     }
-    std::vector<std::string> command = client.getCommand();
     std::string channelName = command[1].substr(command[1].find(" ") + 1, command[1].size());
     std::string nickName = command[1].substr(0, command[1].find(" "));
     channelName.pop_back();
