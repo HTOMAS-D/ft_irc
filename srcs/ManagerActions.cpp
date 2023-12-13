@@ -1,5 +1,32 @@
 #include "../includes/Manager.hpp"
 
+void Manager::kickAction(Client &client) {
+    if(Parser::kickParse(client)) {
+        std::vector<std::string> command = client.getCommand();
+        std::string channelName = command[1].substr(0, command[1].find(" "));
+        std::string user = command[1].substr(command[1].find(" ") + 1, command[1].size());
+        user.pop_back();
+        std::string comment = "";
+        if ((int)user.find(":") > 0) {
+            std::cout << "found comment" << std::endl;
+            comment = user.substr(user.find(":") + 1, command[1].size());
+            user = user.substr(0, user.find(" "));
+        }
+        std::stringstream kickMsg;
+        kickMsg << client.getNickName() << " KICK " << _channels.find(channelName)->second.getChannelId() \
+        << " " << user;
+        if (comment.empty()) {
+            std::cout << "no comment" << std::endl;
+            kickMsg << ":No reason given.";
+        }
+        else
+            kickMsg << ":" << comment;
+        kickMsg << "\r\n";
+        _channels.find(channelName)->second.channelMessage(kickMsg.str().c_str());
+        _channels.find(channelName)->second.removeClient(Manager::getIDbyNick(user));
+    }
+}
+
 void Manager::nickAction(Client &client){
     if (Parser::nickParse(client)) {
         std::string temp = client.getCommand()[1];
@@ -30,7 +57,7 @@ void Manager::inviteAction(Client &client) {
         //prepare msg for invited user
         std::stringstream invNotif;
         invNotif << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
-        << " NOTICE " << nick << " you have been invited ti join " << channel << "\r\n";
+        << " NOTICE " << nick << " you have been invited to join " << channel << "\r\n";
         send(id, invNotif.str().c_str(), invNotif.str().size(), 0);
     }
 }
@@ -39,7 +66,7 @@ void Manager::createMap(void) {
     _actionMap["JOIN"] = joinAction;
     _actionMap["NICK"] = nickAction;
     _actionMap["INVITE"] = inviteAction;
-    //_actionMap["KICK"] = kickAction;
+    _actionMap["KICK"] = kickAction;
     // _actionMap["TOPIC"] = topicAction;
     // _actionMap["MODE"] = modeAction;
     //_actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));

@@ -11,4 +11,5 @@ class Parser{
         static std::string toUpper(const std::string &str);
         static int nickParse(Client &client);
         static int inviteParse(Client &client);
+        static int kickParse(Client &client);
 };

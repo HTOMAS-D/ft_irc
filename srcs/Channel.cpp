@@ -93,16 +93,16 @@ void    Channel::removeClient(int id) { //SERA QUE DEVO RETIRAR TAMBEM JA DOS OP
             _Clients.erase(_Clients.begin() + i);
         }
     }
+    Manager::getClientByID(id)->setChannel("");
+    removeOp(id);
 }
 
 void    Channel::removeOp(int id) {
-    std::string temp = "You have been demoted to normie\n";
     for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == id){
             _ClientOperators.erase(_ClientOperators.begin() + i);
         }
     }
-    send(id, temp.c_str(), temp.size(), 0);
 }
 
 void    Channel::removeInvited(int id) {
@@ -115,7 +115,7 @@ void    Channel::removeInvited(int id) {
 
 void	Channel::channelMessage(const char *msg) {
     std::stringstream temp;
-    temp << "Channel " << _channelId << ": "<< msg << std::endl;
+    temp << ": "<< msg << std::endl;
 	for(int i = 0; i < (int)_Clients.size(); i++){
 		if (send(_Clients[i], temp.str().c_str(), temp.str().size(), 0) == -1)
 			std::cout << "error sending" << std::endl;
@@ -126,8 +126,8 @@ void    Channel::clientMessage(int client, const char *msg) {
     std::stringstream temp;
     temp << Manager::getClientByID(client)->getNickName() << ": "<< msg;
 	for(int i = 0; i < (int)_Clients.size(); i++){
-		if (i != client && send(_Clients[i], temp.str().c_str(), temp.str().size(), 0) == -1)
-			std::cout << "error sending" << std::endl;
+        if (_Clients[i] != client && send(_Clients[i], temp.str().c_str(), temp.str().size(), 0) == -1)
+            std::cout << "error sending" << std::endl;
     }
 }
 

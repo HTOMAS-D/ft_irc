@@ -96,3 +96,52 @@ int Parser::inviteParse(Client &client) {
     }
     return (1);
 }
+
+int Parser::kickParse(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    if (command.size() < 2 || (int)command[1].find(" ") < 0) {
+        Manager::sendIrcMessage("461 KICK :Not enough parameters", client.getId());
+        return (0);
+    }
+    //preparing variables
+    std::string channelName = command[1].substr(0, command[1].find(" "));
+    std::string user = command[1].substr(command[1].find(" ") + 1, command[1].size());
+    user.pop_back();
+    std::string comment = "";
+    if ((int)user.find(":") > 0) {
+        comment = user.substr(user.find(":") + 1, command[1].size());
+        user = user.substr(0, user.find(" "));
+    }
+    //check if user exists
+    int target = Manager::getIDbyNick(user);
+    if (target == -1) {
+        Manager::sendIrcMessage("401 :No such nick", client.getId());
+        return (0);
+    }
+
+    //if channel doesnt exist reject
+    if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
+        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        return (0);
+    }
+
+    //is op to kick
+    // if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
+    //     Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+    //     return (0);
+    // }
+
+    //if user not in channel
+    if (!Manager::getChannels().find(channelName)->second.checkClient(target)) {
+        Manager::sendIrcMessage("441 :They aren't on that channel", client.getId());
+        return (0);
+    }
+
+    //cannot kick yourself
+    if (client.getId() == target) {
+        Manager::sendIrcMessage("481 :Cannot kick yourself", client.getId());
+        return (0);
+    }
+
+    return (1);
+}
