@@ -63,7 +63,7 @@ void    Channel::addClient(int newClient) {
     _Clients.push_back(newClient);
     removeInvited(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
-    temp << Manager::getClientByID(newClient)->getNickName() << " has been added to the channel!";
+    temp << Manager::getClientByID(newClient)->getNickName() << " has been added to the channel!" << std::endl;
     channelMessage(temp.str().c_str());
 }
 
@@ -115,7 +115,7 @@ void    Channel::removeInvited(int id) {
 
 void	Channel::channelMessage(const char *msg) {
     std::stringstream temp;
-    temp << ": "<< msg << std::endl;
+    temp << msg;
 	for(int i = 0; i < (int)_Clients.size(); i++){
 		if (send(_Clients[i], temp.str().c_str(), temp.str().size(), 0) == -1)
 			std::cout << "error sending" << std::endl;

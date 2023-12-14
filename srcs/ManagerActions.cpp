@@ -1,11 +1,51 @@
 #include "../includes/Manager.hpp"
 
+// void Manager::modeAction(Client &client) {
+//     if (Parser::modeParse(client)) {
+
+//     }
+// }
+
+void Manager::topicAction(Client &client) {
+    if (Parser::topicParse(client)) {
+        std::vector<std::string> command = client.getCommand();
+        std::string channelName;
+        std::string topic;
+        std::stringstream topicMsg;
+        //if there is topic in cmd
+        if ((int)command[1].find(":") > 0) {
+            topic = command[1].substr(command[1].find(":") + 1, command[1].size());
+            channelName = command[1].substr(0, command[1].find(" "));
+        }
+        else
+            channelName = command[1];
+        topicMsg << ":" << client.getHostName() << " ";
+        if ((int)command[1].find(":") < 0 && _channels.find(channelName)->second.getTopic().empty()) {
+            topicMsg << "331 " << client.getNickName() << " :No topic is set" << "\r\n";
+            send(client.getId(), topicMsg.str().c_str(), topicMsg.str().size(), 0);
+        }
+        else if ((int)command[1].find(":") < 0) {
+            topicMsg << "332 " << client.getNickName() << " :" << _channels.find(channelName)->second.getTopic() << "\r\n";
+            send(client.getId(), topicMsg.str().c_str(), topicMsg.str().size(), 0);
+        }
+        else if (_channels.find(channelName)->second.getModeT() && !_channels.find(channelName)->second.IsOp(client.getId())) {
+            topicMsg << "482 " << client.getNickName() << " :Your're not channel operator" << "\r\n";
+            send(client.getId(), topicMsg.str().c_str(), topicMsg.str().size(), 0);
+        }
+        else {
+            _channels.find(channelName)->second.setTopic(topic);
+            topicMsg << "332 " << client.getNickName() << " " << _channels.find(channelName)->second.getChannelId() <<  " :"  << _channels.find(channelName)->second.getTopic() << "\r\n";
+            std::cout << "msg topic->" << topicMsg.str();
+            _channels.find(channelName)->second.channelMessage(topicMsg.str().c_str());
+        }
+    }
+}
+
 void Manager::kickAction(Client &client) {
     if(Parser::kickParse(client)) {
         std::vector<std::string> command = client.getCommand();
         std::string channelName = command[1].substr(0, command[1].find(" "));
         std::string user = command[1].substr(command[1].find(" ") + 1, command[1].size());
-        user.pop_back();
         std::string comment = "";
         if ((int)user.find(":") > 0) {
             std::cout << "found comment" << std::endl;
@@ -16,11 +56,10 @@ void Manager::kickAction(Client &client) {
         kickMsg << client.getNickName() << " KICK " << _channels.find(channelName)->second.getChannelId() \
         << " " << user;
         if (comment.empty()) {
-            std::cout << "no comment" << std::endl;
-            kickMsg << ":No reason given.";
+            kickMsg << " :No reason given.";
         }
         else
-            kickMsg << ":" << comment;
+            kickMsg << " :" << comment;
         kickMsg << "\r\n";
         _channels.find(channelName)->second.channelMessage(kickMsg.str().c_str());
         _channels.find(channelName)->second.removeClient(Manager::getIDbyNick(user));
@@ -30,7 +69,6 @@ void Manager::kickAction(Client &client) {
 void Manager::nickAction(Client &client){
     if (Parser::nickParse(client)) {
         std::string temp = client.getCommand()[1];
-        temp.pop_back();
         //preparing msg of successfull change
         std::stringstream nickMsg;
         nickMsg << ":" << client.getNickName() << " NICK :" << temp << "\r\n";
@@ -46,7 +84,6 @@ void Manager::inviteAction(Client &client) {
         std::string nick = command[1].substr(0, command[1].find(" "));
         int id = Manager::getIDbyNick(nick);
         std::string channel = command[1].substr(command[1].find(" ") + 1, command[1].size());
-        channel.pop_back();
         //prepare msg for user
         std::stringstream invMessage;
         invMessage << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
@@ -67,8 +104,8 @@ void Manager::createMap(void) {
     _actionMap["NICK"] = nickAction;
     _actionMap["INVITE"] = inviteAction;
     _actionMap["KICK"] = kickAction;
-    // _actionMap["TOPIC"] = topicAction;
-    // _actionMap["MODE"] = modeAction;
+    _actionMap["TOPIC"] = topicAction;
+    //_actionMap["MODE"] = modeAction;
     //_actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));
     //_actionMap.insert(std::make_pair<std::string, eventFunction>("KICK", &joinAction));
     // _actionMap.insert(std::pair<std::string, eventFunction>("INVITE", &joinAction));
@@ -85,7 +122,7 @@ void Manager::joinAction(Client &client){
         return;
     }
     std::string channelName = command[1];
-    channelName.pop_back();
+    //channelName.pop_back();
     if (channelName[0] != '#'){
         Manager::sendIrcMessage("403 :No such channel", client.getId());
         return;

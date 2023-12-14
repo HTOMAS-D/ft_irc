@@ -37,7 +37,7 @@ int Parser::nickParse(Client &client) {
         return (0);
     }
     std::string nick = command[1];
-    nick.pop_back();
+    //nick.pop_back();
     //check if it is too long, starts with special cha or has space
     if (nick.size() > 9 || nick.c_str()[0] == '#' || nick.c_str()[0] == ':' || (nick.find(" ") < nick.size() && (int)nick.find(" ") != -1)) {
         Manager::sendIrcMessage("432 NICK :Erroneus nickname", client.getId());
@@ -61,7 +61,7 @@ int Parser::inviteParse(Client &client) {
     }
     std::string channelName = command[1].substr(command[1].find(" ") + 1, command[1].size());
     std::string nickName = command[1].substr(0, command[1].find(" "));
-    channelName.pop_back();
+    //channelName.pop_back();
     int target = Manager::getIDbyNick(nickName);
 
     // no such user
@@ -106,7 +106,7 @@ int Parser::kickParse(Client &client) {
     //preparing variables
     std::string channelName = command[1].substr(0, command[1].find(" "));
     std::string user = command[1].substr(command[1].find(" ") + 1, command[1].size());
-    user.pop_back();
+    //user.pop_back();
     std::string comment = "";
     if ((int)user.find(":") > 0) {
         comment = user.substr(user.find(":") + 1, command[1].size());
@@ -142,6 +142,40 @@ int Parser::kickParse(Client &client) {
         Manager::sendIrcMessage("481 :Cannot kick yourself", client.getId());
         return (0);
     }
-
     return (1);
 }
+
+int Parser::topicParse(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    if (command.size() < 2) {
+        Manager::sendIrcMessage("461 TOPIC :Not enough parameters", client.getId());
+        return (0);
+    }
+    std::string channelName;
+    //if there is topic in cmd
+    if ((int)command[1].find(":") > 0)
+        channelName = command[1].substr(0, command[1].find(" "));
+    else
+        channelName = command[1];
+    //if channel doesnt exist reject
+    if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
+        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        return (0);
+    }
+
+    //if user not in channel
+    if (!Manager::getChannels().find(channelName)->second.checkClient(client.getId())) {
+        Manager::sendIrcMessage("442 :You're not on that channel", client.getId());
+        return (0);
+    }
+
+    //is op and mode topic is on
+    if (Manager::getChannels().find(channelName)->second.getModeT() && \
+    !Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
+        Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+        return (0);
+    }
+    return (1);
+}
+
+

@@ -12,4 +12,6 @@ class Parser{
         static int nickParse(Client &client);
         static int inviteParse(Client &client);
         static int kickParse(Client &client);
+        static int topicParse(Client &client);
+        static int modeParse(Client &client);
 };

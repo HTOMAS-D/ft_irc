@@ -59,7 +59,7 @@ void Client::setHostName(std::string hostname) {
 }
 
 void Client::setCommand(std::string cmd) {
-    //cmd.pop_back();
+    cmd.pop_back();
     _cmd.clear();
     if (cmd[0] == '/')
         cmd.erase(0, 1);
@@ -72,6 +72,7 @@ void Client::setCommand(std::string cmd) {
 }
 
 void Client::setregularCommand(std::string cmd) {
+    cmd.pop_back();
     _cmd.clear();
     if (cmd[0] == '/')
         cmd.erase(0, 1);
