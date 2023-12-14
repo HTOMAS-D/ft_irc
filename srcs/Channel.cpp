@@ -161,6 +161,24 @@ int &Channel::getModeT() {
     return _ModeT;
 }
 
+std::string Channel::getChannelModes() {
+    std::string modes;
+
+    if (_ModeI)
+        modes += "+i ";
+    else
+        modes += "-i ";
+    if (_ModeT)
+        modes += "+t ";
+    else
+        modes += "-t ";
+    if (!_key.empty())
+        modes += "+k";
+    else
+        modes += "-k";
+    return (modes);
+}
+
 int Channel::IsOp(int id) {
 	for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == id){

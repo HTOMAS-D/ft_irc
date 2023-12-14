@@ -63,9 +63,17 @@ void Client::setCommand(std::string cmd) {
     _cmd.clear();
     if (cmd[0] == '/')
         cmd.erase(0, 1);
-    std::string holder = Parser::toUpper(cmd.substr(0, cmd.find(" ")));
-    _cmd.push_back(holder);
-    _cmd.push_back(cmd.substr(cmd.find(" ") + 1, cmd.size()));
+    std::string holder;
+    if ((int)cmd.find(" ") > 0) {
+        holder = Parser::toUpper(cmd.substr(0, cmd.find(" ")));
+        _cmd.push_back(holder);
+        _cmd.push_back(cmd.substr(cmd.find(" ") + 1, cmd.size()));
+    }
+    else {
+        holder = Parser::toUpper(cmd.substr(0, cmd.size()));
+        _cmd.push_back(holder);
+    }
+    // std::cout << "cmd[0] = " << _cmd[0] << "; cmd[1] = " << _cmd[1] << std::endl;
     // for (unsigned long i = 0; i < _cmd.size(); i++) {
     //     std::cout << _cmd[i] << std::endl;
     // }

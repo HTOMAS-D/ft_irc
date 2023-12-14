@@ -178,4 +178,45 @@ int Parser::topicParse(Client &client) {
     return (1);
 }
 
+int Parser::modeParse(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    if (command.size() < 2) {
+        Manager::sendIrcMessage("461 MODE :Not enough parameters", client.getId());
+        return (0);
+    }
 
+    std::string channelName;
+    std::string flag = "";
+    if ((int)command[1].find(" ") > 0) {
+        channelName = command[1].substr(0, command[1].find(" "));
+        flag = command[1].substr(command[1].find(" ") + 1, command[1].size());
+    }
+    else
+        channelName = command[1];
+    //if channel doesnt exist reject
+    if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
+        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        return (0);
+    }
+    //if channel exists there is no flag we send modes to user
+    if (flag.empty()){
+        Manager::sendIrcMessage("324 :" + channelName + ": " + Manager::getChannels().find(channelName)->second.getChannelModes(), client.getId());
+        return (0);
+    }
+    //check if flag format is correct
+    if (!flag.empty() && (flag.size() != 2 || (flag[0] != '+' && flag[0] != '-'))) {
+        Manager::sendIrcMessage("501 :Unknown MODE flag", client.getId());
+        return (0);
+    }
+    //check if it is op
+    if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
+        Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+        return (0);
+    }
+    //check if there is such flag
+    if (flag[1] != 'i' && flag[1] != 't' && flag[1] != 'k' && flag[1] != 'o' && flag[1] != 'l') {
+        Manager::sendIrcMessage("421 :Unknown command", client.getId());
+        return (0);
+    }
+    return (1);
+}

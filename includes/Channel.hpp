@@ -47,6 +47,7 @@ class Channel{
 		std::string &getTopic();
 		int &getModeI();
 		int &getModeT();
+		std::string getChannelModes();
 		int IsOp(int i);
 		int IsInvited(int i);
 		std::vector<int> &getClients();

@@ -1,10 +1,10 @@
 #include "../includes/Manager.hpp"
 
-// void Manager::modeAction(Client &client) {
-//     if (Parser::modeParse(client)) {
-
-//     }
-// }
+void Manager::modeAction(Client &client) {
+    if (Parser::modeParse(client)) {
+        
+    }
+}
 
 void Manager::topicAction(Client &client) {
     if (Parser::topicParse(client)) {
@@ -105,7 +105,7 @@ void Manager::createMap(void) {
     _actionMap["INVITE"] = inviteAction;
     _actionMap["KICK"] = kickAction;
     _actionMap["TOPIC"] = topicAction;
-    //_actionMap["MODE"] = modeAction;
+    _actionMap["MODE"] = modeAction;
     //_actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));
     //_actionMap.insert(std::make_pair<std::string, eventFunction>("KICK", &joinAction));
     // _actionMap.insert(std::pair<std::string, eventFunction>("INVITE", &joinAction));
