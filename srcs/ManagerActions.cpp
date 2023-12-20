@@ -15,13 +15,12 @@ void Manager::createMap(void) {
 void Manager::privmsgAction(Client &client)
 {
     std::vector<std::string> command = client.getCommand();
-    std::string channelName = command[1].substr(0, command[1].find(" "));
-    std::string msg = command[1].substr(command[1].find(":"), command[1].size());
-    std::cout << "channel name = " << channelName << "; msg = " << msg << ";\n";
-    if (command.size() < 2) {
+    if (command.size() < 2 || (int)command[1].find(":") < 0) {
 		sendIrcMessage(formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters", client.getId());
 		return;
 	}
+    std::string channelName = command[1].substr(0, command[1].find(" "));
+    std::string msg = command[1].substr(command[1].find(":"), command[1].size());
     // Extract the target and the message
 
     // Check if the target is a valid channel or user
