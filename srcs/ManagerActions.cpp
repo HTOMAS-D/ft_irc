@@ -20,7 +20,7 @@ void Manager::privmsgAction(Client &client)
 		return;
 	}
     std::string channelName = command[1].substr(0, command[1].find(" "));
-    std::string msg = command[1].substr(command[1].find(":" + 1), command[1].size());
+    std::string msg = command[1].substr(command[1].find(":") + 1, command[1].size());
     // Extract the target and the message
 
     // Check if the target is a valid channel or user
