@@ -38,7 +38,7 @@ class Channel{
 		void removeInvited(int id);
 		//other channel cmds
 
-		void channelMessage(const char *msg);
+		void channelMessage(std::string msg);
 		void clientMessage(int client, const char *msg);
 		//GETS
 

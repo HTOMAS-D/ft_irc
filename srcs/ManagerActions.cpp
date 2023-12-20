@@ -7,7 +7,48 @@ void Manager::createMap(void) {
     _actionMap["KICK"] = kickAction;
     _actionMap["TOPIC"] = topicAction;
     _actionMap["MODE"] = modeAction;
+	_actionMap["PRIVMSG"] = privmsgAction;
+
 }
+
+//PRIVMSG channel msg
+void Manager::privmsgAction(Client &client)
+{
+    std::vector<std::string> command = client.getCommand();
+    std::string channelName = command[1];
+    std::string msg = command[2];
+    if (command.size() < 2) {
+		sendIrcMessage(formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters", client.getId());
+		return;
+	}
+    // Extract the target and the message
+
+    // Check if the target is a valid channel or user
+    // if (target[0] != '#' && !Manager::isUserInChannel(target, client.getChannel())) {
+    //     sendIrcMessage(formatMessage(client, ERR_NOSUCHNICK) + " " + target + " :No such nick/channel", client.getId());
+    //     return;
+    // }
+
+    // If everything is okay, send the message to the target
+    if (channelName[0] == '#') {
+        //Broadcast the message to all members of the channel
+        Channel &channel = Manager::getChannels().find(channelName)->second;
+        channel.channelMessage(formatMessage(client) + " PRIVMSG " + channelName + " :" + msg);
+    } 
+    else {
+        // Target is a user, send the message directly to the user
+        int targetId = Manager::getIDbyNick(channelName);
+        if (targetId != -1) {
+            std::string ircMessage = formatMessage(client) + " PRIVMSG " + channelName + " :" + msg;
+            sendIrcMessage(ircMessage, targetId);
+        } else {
+            // Handle the case where the target user does not exist
+            sendIrcMessage(formatMessage(client, NOSUCHNICK) + " " + channelName + " :No such nick", client.getId());
+        }
+    }
+}
+
+
 
 std::string Manager::formatMessage(Client &client) {
 	return (":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName());

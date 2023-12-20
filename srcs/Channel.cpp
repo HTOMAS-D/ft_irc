@@ -113,12 +113,10 @@ void    Channel::removeInvited(int id) {
     }
 }
 
-void	Channel::channelMessage(const char *msg) {
-    std::stringstream temp;
-    temp << msg;
-	for(int i = 0; i < (int)_Clients.size(); i++){
-		if (send(_Clients[i], temp.str().c_str(), temp.str().size(), 0) == -1)
-			std::cout << "error sending" << std::endl;
+void	Channel::channelMessage(std::string msg) {
+    for(int i = 0; i < (int)_Clients.size(); i++){
+        if (send(_Clients[i], msg.c_str(), msg.size(), 0) == -1)
+            std::cout << "error sending" << std::endl;
     }
 }
 

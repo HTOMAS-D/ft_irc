@@ -33,6 +33,7 @@ class Manager{
         static void modeAction(Client &client );
         static void nickAction(Client &client);
         static void runActions(Client &client);
+        static void privmsgAction(Client &client);
         static int	sendIrcMessage(std::string message, int clientId);
         static std::map<std::string, eventFunction> &getActionMap();
         static std::map<std::string, Channel> &getChannels();

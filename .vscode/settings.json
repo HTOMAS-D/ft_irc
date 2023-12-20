@@ -85,5 +85,5 @@
 		"cinttypes": "cpp",
 		"typeindex": "cpp"
 	},
-	"C_Cpp.intelliSenseEngineFallback": "disabled"
+	"C_Cpp.intelliSenseEngineFallback": "enabled"
 }
