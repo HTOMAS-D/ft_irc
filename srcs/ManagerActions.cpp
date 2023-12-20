@@ -15,8 +15,9 @@ void Manager::createMap(void) {
 void Manager::privmsgAction(Client &client)
 {
     std::vector<std::string> command = client.getCommand();
-    std::string channelName = command[1];
-    std::string msg = command[2];
+    std::string channelName = command[1].substr(0, command[1].find(" "));
+    std::string msg = command[1].substr(command[1].find(":"), command[1].size());
+    std::cout << "channel name = " << channelName << "; msg = " << msg << ";\n";
     if (command.size() < 2) {
 		sendIrcMessage(formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters", client.getId());
 		return;
@@ -113,7 +114,6 @@ void Manager::kickAction(Client &client) {
         std::string comment = "";
 
         if ((int)user.find(":") > 0) {
-            std::cout << "found comment" << std::endl;
             comment = user.substr(user.find(":") + 1, command[1].size());
             user = user.substr(0, user.find(" "));
         }
@@ -191,18 +191,17 @@ void Manager::sendNamesList(const std::string &channelName, Client &client) {
         if (i != namesList.size() - 1)
             namesMessage += " ";
     }
-    namesMessage += "\r\n";
     sendIrcMessage(namesMessage, client.getId());
     // Send end of NAMES list
     std::string endOfNamesMessage = ":" + _serverName + " 366 " + \
-        Manager::formatMessage(client) + " " + channelName + " :End of /NAMES list\r\n";
+        Manager::formatMessage(client) + " " + channelName + " :End of /NAMES list";
     sendIrcMessage(endOfNamesMessage, client.getId());
 }
 
 int	Manager::sendIrcMessage(std::string message, int clientId)
 {
 	message = message + "\r\n";
-	std::cout << "Sending message: " << message << std::endl;
+	std::cout << "Sending message: " << message;
 	if (send(clientId, message.c_str(), message.length(), 0) == -1)
 		exit(4);
 	return 0;
