@@ -9,7 +9,6 @@ std::vector<std::string> Parser::divideString(const std::string &str, char delim
     while (std::getline(ss, token, delim)) {
         tokens.push_back(token);
     }
-
     return tokens;
 }
 
@@ -31,23 +30,40 @@ std::string Parser::toUpper(const std::string &str){
 }
 
 int Parser::nickParse(Client &client) {
+
     std::vector<std::string> command = client.getCommand();
-    if (command.size() < 2 || command[1].size() == 1) {
-        Manager::sendIrcMessage("431 NICK :No nick given", client.getId());
-        return (0);
+    if (command.size() < 2) {
+	    Manager::sendIrcMessage(Manager::formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters", client.getId());
+	    return 0;
+	}
+    if (command[1].size() == 1) {
+        Manager::sendIrcMessage(Manager::formatMessage(client, NONICKNAMEGIVEN), client.getId());
+        return 0;
     }
     std::string nick = command[1];
-    //nick.pop_back();
     //check if it is too long, starts with special cha or has space
     if (nick.size() > 9 || nick.c_str()[0] == '#' || nick.c_str()[0] == ':' || (nick.find(" ") < nick.size() && (int)nick.find(" ") != -1)) {
-        Manager::sendIrcMessage("432 NICK :Erroneus nickname", client.getId());
-        return (0);
+        Manager::sendIrcMessage(Manager::formatMessage(client, ERRONEUSNICKNAME) + " " + nick + " :Erroneous nickname", client.getId());
+        return 0;
     }
     for (int i = 0; i < (int)Manager::getClient().size(); i++) {
         if (Manager::getClient()[i].getNickName() == nick) {
-                Manager::sendIrcMessage("433 NICK :Nickname is already in use", client.getId());
+                Manager::sendIrcMessage(Manager::formatMessage(client, NICKNAMEINUSE) + " " + nick + " :Nickname is already in use", client.getId());
             return 0;
         }
+    }
+    return 1;
+}
+
+int Parser::joinParse(Client &client)
+{
+    if (client.getCommand().size() < 2){
+        Manager::sendIrcMessage(Manager::formatMessage(client, NEEDMOREPARAMS), client.getId());
+        return 0;
+    }
+    if (client.getCommand()[1][0] != '#'){
+        Manager::sendIrcMessage(Manager::formatMessage(client, NEEDMOREPARAMS), client.getId());
+        return 0;
     }
     return 1;
 }

@@ -1,10 +1,33 @@
 #include "../includes/Manager.hpp"
 
+void Manager::createMap(void) {
+    _actionMap["JOIN"] = joinAction;
+    _actionMap["NICK"] = nickAction;
+    _actionMap["INVITE"] = inviteAction;
+    _actionMap["KICK"] = kickAction;
+    _actionMap["TOPIC"] = topicAction;
+    _actionMap["MODE"] = modeAction;
+}
+
+std::string Manager::formatMessage(Client &client) {
+	return (":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName());
+}
+
+std::string Manager::formatMessage(Client &client, std::string message)
+{
+	return (":" + client.getHostName() + " " + message + " " + client.getNickName());
+}
+
 void Manager::modeAction(Client &client) {
     if (Parser::modeParse(client)) {
         
     }
 }
+
+// std::string Manager::formatMessage(Channel &_channel,  std::string &message)
+// {
+// 	return (":" + _channel.getHostName() + " " + message + " " + _channel.getName());
+// }
 
 void Manager::topicAction(Client &client) {
     if (Parser::topicParse(client)) {
@@ -47,6 +70,7 @@ void Manager::kickAction(Client &client) {
         std::string channelName = command[1].substr(0, command[1].find(" "));
         std::string user = command[1].substr(command[1].find(" ") + 1, command[1].size());
         std::string comment = "";
+
         if ((int)user.find(":") > 0) {
             std::cout << "found comment" << std::endl;
             comment = user.substr(user.find(":") + 1, command[1].size());
@@ -66,14 +90,31 @@ void Manager::kickAction(Client &client) {
     }
 }
 
-void Manager::nickAction(Client &client){
-    if (Parser::nickParse(client)) {
-        std::string temp = client.getCommand()[1];
-        //preparing msg of successfull change
-        std::stringstream nickMsg;
-        nickMsg << ":" << client.getNickName() << " NICK :" << temp << "\r\n";
-        send(client.getId(), nickMsg.str().c_str(), nickMsg.str().size(), 0);
-        client.setNickName(temp);
+void Manager::nickAction(Client &client)
+{
+    if (Parser::nickParse(client)) 
+    {
+        sendIrcMessage(":" + client.getNickName() + " NICK :" + client.getCommand()[1], client.getId());
+        client.setNickName(client.getCommand()[1]);
+    }
+}
+
+void Manager::joinAction(Client &client){
+    std::vector<std::string> command = client.getCommand();
+    std::string channelName = command[1];
+    if (Parser::joinParse(client)){
+        //Check if the client is already in the channel
+        // if (_channels.find(channelName)->second.checkClient(client.getId())) {
+        //     sendIrcMessage(Manager::formatMessage(client, NOTONCHANNEL), client.getId());
+        //     return ;
+        // }
+        //Check if the channel exists, create if not
+        if (_channels.find(channelName) == _channels.end()) {
+            _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName, "", "")));
+        }
+        _channels[channelName].addClient(client.getId());
+        sendIrcMessage(formatMessage(client) + " JOIN " + channelName, client.getId());
+        sendNamesList(channelName, client);
     }
 }
 
@@ -99,77 +140,22 @@ void Manager::inviteAction(Client &client) {
     }
 }
 
-void Manager::createMap(void) {
-    _actionMap["JOIN"] = joinAction;
-    _actionMap["NICK"] = nickAction;
-    _actionMap["INVITE"] = inviteAction;
-    _actionMap["KICK"] = kickAction;
-    _actionMap["TOPIC"] = topicAction;
-    _actionMap["MODE"] = modeAction;
-    //_actionMap.insert(std::make_pair<std::string, eventFunction>("JOIN", &joinAction));
-    //_actionMap.insert(std::make_pair<std::string, eventFunction>("KICK", &joinAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("INVITE", &joinAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("TOPIC", &joinAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("MODE", &joinAction));
-    // _actionMap.insert(std::pair<std::string, eventFunction>("NICK", &nickAction));
-}
-
-//command[1] its the channel name
-void Manager::joinAction(Client &client){
-    std::vector<std::string> command = client.getCommand();
-    if (client.getCommand().size() < 2){
-        Manager::sendIrcMessage("461 JOIN :Not enough parameters", client.getId());
-        return;
-    }
-    std::string channelName = command[1];
-    //channelName.pop_back();
-    if (channelName[0] != '#'){
-        Manager::sendIrcMessage("403 :No such channel", client.getId());
-        return;
-    }
-    //Check if the channel exists, create if not
-    if (_channels.find(channelName) == _channels.end()) {
-        std::cout << "aqui 4" << std::endl;
-        _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName, "", "")));
-    }
-    
-    //Check if the client is already in the channel
-    if (_channels.find(channelName)->second.checkClient(client.getId())) {
-        Manager::sendIrcMessage("442 :You're already in that channel", client.getId());
-        return;
-    }
-    _channels[channelName].addClient(client.getId());
-    std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName()
-                        + " JOIN :" + channelName + "\r\n";
-    send(client.getId(), joinMessage.c_str(), joinMessage.size(), 0);
-    sendNamesList(channelName, client);
-    // if (_channels.find(command[1]) != _channels.end())
-    //     _channels.find(command[1])->second.addClient(client.getId());
-    // else{
-    //     send(client.getId(), "No such channel\n", 16, 0);
-    //     //Manager::sendIrcMessage("475 :Bad channel key", client.getId());
-    //     //return;
-    // }
-}
 
 void Manager::sendNamesList(const std::string &channelName, Client &client) {
     std::string _serverName = "my_server";
     std::vector<std::string> namesList = _channels[channelName].getNamesList();
-    std::string namesMessage = ":" + _serverName + " 353 " + \
-        client.getClientPrefix() + " = " + channelName + " :";
-    
+    std::string namesMessage = Manager::formatMessage(client, NAMREPLY) + " = " + channelName + " :";
     for (unsigned long i = 0; i < namesList.size(); i++) {
         namesMessage += namesList[i];
         if (i != namesList.size() - 1)
             namesMessage += " ";
     }
     namesMessage += "\r\n";
-    send(client.getId(), namesMessage.c_str(), namesMessage.size(), 0);
+    sendIrcMessage(namesMessage, client.getId());
     // Send end of NAMES list
     std::string endOfNamesMessage = ":" + _serverName + " 366 " + \
-        client.getClientPrefix()+ " " + channelName +
-                                    " :End of /NAMES list\r\n";
-    send(client.getId(), endOfNamesMessage.c_str(), endOfNamesMessage.size(), 0);
+        Manager::formatMessage(client) + " " + channelName + " :End of /NAMES list\r\n";
+    sendIrcMessage(endOfNamesMessage, client.getId());
 }
 
 int	Manager::sendIrcMessage(std::string message, int clientId)
@@ -183,17 +169,10 @@ int	Manager::sendIrcMessage(std::string message, int clientId)
 
 void Manager::runActions(Client &client){
     (void) client;
-    // std::cout << "entered run" << std::endl;
-    // std::cout << "it = " << (_actionMap.find("JOIN"))->first << std::endl;
     std::string cmd = client.getCommand()[0];
-    // std::cout << "cmd = " << cmd << std::endl;
     std::string action = cmd;
-    // std::cout << "size: " << action.size() << std::endl;
-    // std::cout << "Action =" << action << std::endl;
     std::map<std::string, eventFunction>::iterator it = _actionMap.find(action);
-    // std::cout << "First" << it->first << std::endl;
     if (_actionMap.find(action) != _actionMap.end()){
-    //     std::cout << "Found action" << std::endl;
         it->second(client);
     }
     else{

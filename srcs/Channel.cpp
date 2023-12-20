@@ -27,8 +27,8 @@ Channel::Channel(std::string id, std::string pass, std::string topic){
     _ModeT = 0;
     std::cout << "Channel created with id: " << id << std::endl \
     << "Topic = " << _topic << std::endl;
-    // << "Pass = " << _key << std::endl \
-    // << "ModeI = " << _ModeI << std::endl\
+    // << "Pass = " << _key << std::endl 
+    // << "ModeI = " << _ModeI << std::endl
     // << "ModeT = " << _ModeT << std::endl;
 }
 

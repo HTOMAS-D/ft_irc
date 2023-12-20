@@ -5,16 +5,9 @@ std::map<std::string, eventFunction> Manager::_actionMap;
 std::map<std::string, Channel> Manager::_channels;
 
 
-void Manager::createChannels() {
-	_channels.insert(std::make_pair<std::string, Channel>("#123", Channel("#123", "", "Exemplo")));
-	_channels.insert(std::make_pair<std::string, Channel>("#567", Channel("#567", "", "Other")));
-
-}
-
 void Manager::addClient(int id, std::string hostname){
     _clients.push_back(Client(id, hostname));
     std::cout << "Client " << id << " added to Clients" << std::endl;
-	//_channels.find("#123")->second.addClient(id); //HARDCODED FOR TESTING
 }
 
 void Manager::removeClient(int id){
@@ -24,11 +17,6 @@ void Manager::removeClient(int id){
             std::cout << "Client " << id << " removed from Clients" << std::endl;
         }
     }
-	//HARDCODED FOR TESTING
-	for (int i = 0; i < (int)_channels.find("#123")->second.getClients().size(); i++) {
-		if (_channels.find("#123")->second.getClients()[i] == id)
-			_channels.find("#123")->second.removeClient(id);
-	}
 }
 
 std::vector<Client> &Manager::getClient() {

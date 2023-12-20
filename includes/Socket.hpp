@@ -15,7 +15,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-
+#include "Error.hpp"
 #include "Manager.hpp"
 #include "Parser.hpp"
 #include "Client.hpp"
@@ -44,6 +44,7 @@ class Socket {
         struct addrinfo * socketAddress();
         void startMainLoop();
         void getData();
+        void acceptedConnection(int newFd);
 		void handleData(int i);
         void handleMessage(int i);
 

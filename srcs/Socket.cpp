@@ -1,26 +1,5 @@
 #include "../includes/Socket.hpp"
 
-// int socket(int domain, int type, int protocol);
-// Domain:
-//     AF_INET: IPv4 Internet protocols.
-//     AF_INET6: IPv6 Internet protocols.
-
-// Type:
-//     SOCK_STREAM: Provides a reliable, connection-oriented, stream-based service (TCP).
-//     SOCK_DGRAM: Provides an unreliable, connectionless, datagram-based service (UDP).
-
-// Protocol:
-//     0: The system selects a suitable protocol based on the combination of domain and type.
-//     IPPROTO_TCP: TCP protocol (used with SOCK_STREAM).
-//     IPPROTO_UDP: UDP protocol (used with SOCK_DGRAM).
-
-// MAIN ORDER OF SETTING UP:
-// getaddrinfo();
-// socket();
-// bind();
-// listen();
-// accept();  -> accepting will return a new socket_fd for this connection (you get the first fd from socket() and this one for send() and recv())
-
 //CONSTRUCTORS AND DESTRUCTORS
 Socket::Socket(std::string port, std::string password) : _port(port), _password(password){
     std::cout << "Socket Constructor called" << std::endl;
@@ -117,7 +96,6 @@ void Socket::initSocket(){
 
 void Socket::startMainLoop(){
     Manager::createMap();
-    //Manager::createChannels();
     while(1){
         _temp = _master; //start by copying the master to the temp fd_set
         //Monitor multiple fd's and will block until activity is 
@@ -130,112 +108,23 @@ void Socket::startMainLoop(){
     }
 }
 
-void    acceptedConnection(int newFd);
+// int socket(int domain, int type, int protocol);
+// Domain:
+//     AF_INET: IPv4 Internet protocols.
+//     AF_INET6: IPv6 Internet protocols.
 
-/* Iterate through successful connections to get data to read */
-void	Socket::getData() {
+// Type:
+//     SOCK_STREAM: Provides a reliable, connection-oriented, stream-based service (TCP).
+//     SOCK_DGRAM: Provides an unreliable, connectionless, datagram-based service (UDP).
 
-    struct sockaddr_storage address; //struct to hold to store socket address (large enough to handle any struct, ipv4, ipv6 or other family)
-    socklen_t addrlen; // used to represent the lenght of or size of socket structs
-    int newFd;
-	
-	for(int i = 0; i < _maxFd; i++){
-		if (FD_ISSET(i, &_temp)) // check if the fd is in the temp fd list
-		{
-			if(i == _socketFd){
-				// this means we got a new connecion
-				addrlen = sizeof(address);
-				newFd = accept(_socketFd, (struct sockaddr *) &address, &addrlen);
-				if (newFd == -1){
-					std::cout << "Error accepting connection" << std::endl;
-				}
-				else{
-					FD_SET(newFd, &_master); // add new fd to master fd list
-					if (newFd > _socketFd){ // check if theres a new max FD
-						_maxFd = newFd + 1;
-					}
-                    acceptedConnection(newFd);
-				} 
-			}
-			//handle data from client
-			else
-				handleData(i);
-		}
-	}
-}
+// Protocol:
+//     0: The system selects a suitable protocol based on the combination of domain and type.
+//     IPPROTO_TCP: TCP protocol (used with SOCK_STREAM).
+//     IPPROTO_UDP: UDP protocol (used with SOCK_DGRAM).
 
-void    acceptedConnection(int newFd){
-    // Use getpeername to obtain the address of the connecting client
-    struct sockaddr_storage peerAddress;
-    socklen_t peerAddrlen = sizeof(peerAddress);
-    getpeername(newFd, (struct sockaddr*)&peerAddress, &peerAddrlen);
-
-    char host[NI_MAXHOST];
-
-    // Use inet_ntoa to convert the address to a string
-    std::string ipAddress = inet_ntoa(((struct sockaddr_in*)&peerAddress)->sin_addr);
-
-    // Use gethostbyname to obtain the hostname
-    struct hostent* hostEntry = gethostbyname(ipAddress.c_str());
-    if (hostEntry) {
-        strncpy(host, hostEntry->h_name, NI_MAXHOST);
-        host[NI_MAXHOST - 1] = '\0';
-        std::cout << "Connection accepted from " << host << std::endl;
-        Manager::addClient(newFd, host); // Pass the hostname to addClient
-    } else {
-        std::cerr << "gethostbyname failed" << std::endl;
-    }
-}
-
-/* Handle data from client */
-void	Socket::handleData(int i) {
-    int nbrBytes;
-	char buffer[BUFFER_SIZE];
-
-	bzero(buffer, sizeof(buffer));
-	//start by checking if the activity is either error or client closed connection
-	nbrBytes = recv(i, &buffer, sizeof(buffer) - 1, 0);
-	if(nbrBytes <= 0){
-		if (nbrBytes == 0){
-			std::cout << "Client with socket " << i << " disconnected" << std::endl;
-            Manager::removeClient(i);
-		}
-		else{
-			std::cout << "Random receive error" << std::endl;
-		}
-		close(i);
-		FD_CLR(i, &_master);
-	}
-	else{
-
-		Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str() + buffer);
-		int newLine = Manager::getClientBuffer(i).str().find('\n');
-		while (newLine >= 0) {
-			std::string temp = Manager::getClientBuffer(i).str().substr(newLine + 1, Manager::getClientBuffer(i).str().size());
-			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, newLine + 1));
-			std::cout << "[" << i << "]" << Manager::getClientBuffer(i).str();
-			handleMessage(i); //handle message info ex. cmds usr info
-			Manager::getClientBuffer(i).str(temp);
-			newLine = Manager::getClientBuffer(i).str().find('\n');
-		}
-	}
-}
-
-
-
-void    Socket::handleMessage(int i){
-    std::vector<Client>::iterator iter = Manager::getClientByID(i);
-    Client &temporary = *Manager::getClientByID(i);
-    temporary.setCommand(Manager::getClientBuffer(i).str());
-    if (Parser::isAction(temporary.getCommand()[0], i)) {
-        Manager::runActions(*iter);
-    }
-    else {
-        if (Manager::getClientByID(i)->getChannel().size()) {
-            Manager::getChannels().find(Manager::getClientByID(i)->getChannel())->second.clientMessage(i, Manager::getClientBuffer(i).str().c_str());
-        }
-        else {
-            send(i, "You are not in a channel, please join a channel!\n", 50, 0);
-        }
-    }
-}
+// MAIN ORDER OF SETTING UP:
+// getaddrinfo();
+// socket();
+// bind();
+// listen();
+// accept();  -> accepting will return a new socket_fd for this connection (you get the first fd from socket() and this one for send() and recv())

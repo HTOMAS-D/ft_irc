@@ -25,8 +25,6 @@ class Manager{
         static std::string getNickbyID(int id);
         static int getIDbyNick(std::string nick);
 
-        static void createChannels();
-
         static void createMap(void);
         static void joinAction(Client &client);
         static void kickAction(Client &client );
@@ -40,6 +38,8 @@ class Manager{
         static std::map<std::string, Channel> &getChannels();
 
         static void sendNamesList(const std::string &channelName, Client &client);
-
+        static std::string formatMessage(Client &client);
+        static std::string formatMessage(Client &client, std::string message);
+        //static std::string formatMessage(Channel &_channel, std::string &message);
 };
 #endif

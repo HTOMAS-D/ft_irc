@@ -12,7 +12,6 @@ class Client{
 		std::vector<std::string> _cmd;
 		std::string _channel;
 		std::string _hostname;
-        //GETTERS
 
     public:
 		Client(){};
@@ -21,27 +20,23 @@ class Client{
 		Client &operator=(const Client &src);
         ~Client();
 
+		//Getters
+		std::string       &getChannel() ;
+		std::string       &getNickName() ;
+		std::string 	  &getUserName() ;
+		std::string       &getHostName() ;
+        int 			  getId() ;
+		std::stringstream &getBuffer() ;
+		std::string 	  getClientPrefix() ;
+		std::vector<std::string> getCommand( void ) ;
 
-		std::string &getChannel();
+		//Setters
 		void setChannel(std::string channel);
-		std::string &getNickName();
 		void setNickName(std::string nickName);
-		std::string &getUserName();
 		void setUserName(std::string userName);
-        int &getId();
-		std::string &getHostName();
 		void setHostName(std::string hostname);
-		std::stringstream &getBuffer();
-		
-		std::string getClientPrefix() ;
-
-		std::vector<std::string> getCommand( void ) const;
-		// void setCommand(std::vector <std::string> cmd);
 		void setCommand(std::string cmd);
 		void setregularCommand(std::string cmd);
-
-
-		
 };
 
 
