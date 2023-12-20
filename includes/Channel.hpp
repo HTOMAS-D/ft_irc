@@ -54,8 +54,8 @@ class Channel{
 		//SETS
 		void setKey(std::string pass) {_key = pass;}
 		void setTopic(std::string topic) {_topic = topic;}
-		void setModeI();
-		void setModeT();
+		void setModeI(int flag);
+		void setModeT(int flag);
 
 		bool checkClient(int clientId) const;
 		std::vector<std::string> getNamesList();

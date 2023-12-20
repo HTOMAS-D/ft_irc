@@ -199,15 +199,15 @@ std::vector<int> &Channel::getClients() {
 return _Clients;
 }
 
-void Channel::setModeI() {
-    if (_ModeI)
+void Channel::setModeI(int flag) {
+    if (flag)
         _ModeI = 0;
     else
         _ModeI = 1;
 }
 
-void Channel::setModeT() {
-    if (_ModeT)
+void Channel::setModeT(int flag) {
+    if (flag)
         _ModeT = 0;
     else
         _ModeT = 1;

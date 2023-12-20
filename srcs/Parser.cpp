@@ -203,9 +203,14 @@ int Parser::modeParse(Client &client) {
 
     std::string channelName;
     std::string flag = "";
+    std::string arg = "";
     if ((int)command[1].find(" ") > 0) {
         channelName = command[1].substr(0, command[1].find(" "));
         flag = command[1].substr(command[1].find(" ") + 1, command[1].size());
+        if ((int)flag.find(" ") > 0) {
+            arg = flag.substr(flag.find(" ") + 1, flag.size());
+            flag = flag.substr(0, flag.find(" "));
+        }
     }
     else
         channelName = command[1];
@@ -225,14 +230,28 @@ int Parser::modeParse(Client &client) {
         return (0);
     }
     //check if it is op
-    if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-        Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
-        return (0);
-    }
+    // if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
+    //     Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+    //     return (0);
+    // }
     //check if there is such flag
     if (flag[1] != 'i' && flag[1] != 't' && flag[1] != 'k' && flag[1] != 'o' && flag[1] != 'l') {
         Manager::sendIrcMessage("421 :Unknown command", client.getId());
         return (0);
+    }
+    // std::cout << "flag = " << flag << "; arg = " << arg << "; e empty ta = " << (((flag[1] == 'k' && flag[0] == '+') || flag[1] != 'o') && arg.empty()) << std::endl;
+    if (((flag[1] == 'k' && flag[0] == '+') || flag[1] == 'o') && arg.empty()) {
+        Manager::sendIrcMessage("461 MODE :Not enough parameters", client.getId());
+        return (0);
+    }
+
+    if (flag[1] == 'o') {
+        //check if user exists
+        int target = Manager::getIDbyNick(arg);
+        if (target == -1) {
+            Manager::sendIrcMessage("401 :No such nick", client.getId());
+            return (0);
+        }
     }
     return (1);
 }

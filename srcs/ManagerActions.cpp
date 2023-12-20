@@ -60,12 +60,6 @@ std::string Manager::formatMessage(Client &client, std::string message)
 	return (":" + client.getHostName() + " " + message + " " + client.getNickName());
 }
 
-void Manager::modeAction(Client &client) {
-    if (Parser::modeParse(client)) {
-        
-    }
-}
-
 // std::string Manager::formatMessage(Channel &_channel,  std::string &message)
 // {
 // 	return (":" + _channel.getHostName() + " " + message + " " + _channel.getName());
