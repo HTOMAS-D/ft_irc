@@ -33,6 +33,7 @@ void Manager::privmsgAction(Client &client)
     if (channelName[0] == '#') {
         //Broadcast the message to all members of the channel
         Channel &channel = Manager::getChannels().find(channelName)->second;
+        msg += "\r\n";
         channel.channelMessage(formatMessage(client) + " PRIVMSG " + channelName + " :" + msg);
     } 
     else {
