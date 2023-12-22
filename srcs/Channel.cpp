@@ -63,6 +63,9 @@ void    Channel::addClient(int newClient) {
     _Clients.push_back(newClient);
     removeInvited(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
+    if (_ClientOperators.size() == 0) {
+        addClientToOp(newClient);
+    }
     temp << Manager::getClientByID(newClient)->getNickName() << " has been added to the channel!" << std::endl;
     channelMessage(temp.str().c_str());
 }
@@ -102,6 +105,9 @@ void    Channel::removeOp(int id) {
         if(_ClientOperators[i] == id){
             _ClientOperators.erase(_ClientOperators.begin() + i);
         }
+    }
+    if ((int)_ClientOperators.size() == 0 && (int)_Clients.size()) {
+        addClientToOp(_Clients[0]);
     }
 }
 

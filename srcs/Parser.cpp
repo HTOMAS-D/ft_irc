@@ -42,7 +42,7 @@ int Parser::nickParse(Client &client) {
     }
     std::string nick = command[1];
     //check if it is too long, starts with special cha or has space
-    if (nick.size() > 9 || nick.c_str()[0] == '#' || nick.c_str()[0] == ':' || (nick.find(" ") < nick.size() && (int)nick.find(" ") != -1)) {
+    if (nick.size() > 9 || nick.c_str()[0] == '#' || nick.c_str()[0] == ':' || ((int)nick.find(" ") && (int)nick.find(" ") != -1)) {
         Manager::sendIrcMessage(Manager::formatMessage(client, ERRONEUSNICKNAME) + " " + nick + " :Erroneous nickname", client.getId());
         return 0;
     }
@@ -142,10 +142,10 @@ int Parser::kickParse(Client &client) {
     }
 
     //is op to kick
-    // if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-    //     Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
-    //     return (0);
-    // }
+    if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
+        Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+        return (0);
+    }
 
     //if user not in channel
     if (!Manager::getChannels().find(channelName)->second.checkClient(target)) {
@@ -230,10 +230,10 @@ int Parser::modeParse(Client &client) {
         return (0);
     }
     //check if it is op
-    // if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-    //     Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
-    //     return (0);
-    // }
+    if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
+        Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+        return (0);
+    }
     //check if there is such flag
     if (flag[1] != 'i' && flag[1] != 't' && flag[1] != 'k' && flag[1] != 'o' && flag[1] != 'l') {
         Manager::sendIrcMessage("421 :Unknown command", client.getId());
