@@ -33,22 +33,22 @@ int Parser::nickParse(Client &client) {
 
     std::vector<std::string> command = client.getCommand();
     if (command.size() < 2) {
-	    Manager::sendIrcMessage(Manager::formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters", client.getId());
+	    Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters");
 	    return 0;
 	}
     if (command[1].size() == 1) {
-        Manager::sendIrcMessage(Manager::formatMessage(client, NONICKNAMEGIVEN), client.getId());
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NONICKNAMEGIVEN));
         return 0;
     }
     std::string nick = command[1];
     //check if it is too long, starts with special cha or has space
     if (nick.size() > 9 || nick.c_str()[0] == '#' || nick.c_str()[0] == ':' || (nick.find(" ") < nick.size() && (int)nick.find(" ") != -1)) {
-        Manager::sendIrcMessage(Manager::formatMessage(client, ERRONEUSNICKNAME) + " " + nick + " :Erroneous nickname", client.getId());
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, ERRONEUSNICKNAME) + " " + nick + " :Erroneous nickname");
         return 0;
     }
     for (int i = 0; i < (int)Manager::getClient().size(); i++) {
         if (Manager::getClient()[i].getNickName() == nick) {
-                Manager::sendIrcMessage(Manager::formatMessage(client, NICKNAMEINUSE) + " " + nick + " :Nickname is already in use", client.getId());
+                Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NICKNAMEINUSE) + " " + nick + " :Nickname is already in use");
             return 0;
         }
     }
@@ -58,11 +58,11 @@ int Parser::nickParse(Client &client) {
 int Parser::joinParse(Client &client)
 {
     if (client.getCommand().size() < 2){
-        Manager::sendIrcMessage(Manager::formatMessage(client, NEEDMOREPARAMS), client.getId());
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS));
         return 0;
     }
     if (client.getCommand()[1][0] != '#'){
-        Manager::sendIrcMessage(Manager::formatMessage(client, NEEDMOREPARAMS), client.getId());
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS));
         return 0;
     }
     return 1;
@@ -72,7 +72,7 @@ int Parser::inviteParse(Client &client) {
     std::vector<std::string> command = client.getCommand();
     // std::cout << "cmd = " << command[1] << std::endl << "find == " << (int)command[1].find(" ") << std::endl;
     if (command.size() < 2 || (int)command[1].find(" ") < 0) {
-        Manager::sendIrcMessage("461 INVITE :Not enough parameters", client.getId());
+        Manager::sendIrcMessage(client.getId(), "461 INVITE :Not enough parameters");
         return (0);
     }
     std::string channelName = command[1].substr(command[1].find(" ") + 1, command[1].size());
@@ -82,32 +82,32 @@ int Parser::inviteParse(Client &client) {
 
     // no such user
     if (target == -1) {
-        Manager::sendIrcMessage("401 :No such nick", client.getId());
+        Manager::sendIrcMessage(client.getId(), "401 :No such nick");
         return (0);
     }
 
     //if channel doesnt exist reject
     if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
-        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "403 :No such channel");
         return (0);
     }
 
     //check if it is on channel
     if (!Manager::getChannels().find(channelName)->second.checkClient(client.getId())) {
-        Manager::sendIrcMessage("442 :You're not on that channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "442 :You're not on that channel");
         return (0);
     }
 
     //check I mode on and if is op
     if (Manager::getChannels().find(channelName)->second.getModeI() && \
     !Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-        Manager::sendIrcMessage("482 :You're not channel operator", client.getId());
+        Manager::sendIrcMessage(client.getId(), "482 :You're not channel operator");
         return (0);
     }
 
     //if user already in channel
     if (Manager::getChannels().find(channelName)->second.checkClient(target)) {
-        Manager::sendIrcMessage("443 :is already on channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "443 :is already on channel");
         return (0);
     }
     return (1);
@@ -116,7 +116,7 @@ int Parser::inviteParse(Client &client) {
 int Parser::kickParse(Client &client) {
     std::vector<std::string> command = client.getCommand();
     if (command.size() < 2 || (int)command[1].find(" ") < 0) {
-        Manager::sendIrcMessage("461 KICK :Not enough parameters", client.getId());
+        Manager::sendIrcMessage(client.getId(), "461 KICK :Not enough parameters");
         return (0);
     }
     //preparing variables
@@ -131,31 +131,31 @@ int Parser::kickParse(Client &client) {
     //check if user exists
     int target = Manager::getIDbyNick(user);
     if (target == -1) {
-        Manager::sendIrcMessage("401 :No such nick", client.getId());
+        Manager::sendIrcMessage(client.getId(), "401 :No such nick");
         return (0);
     }
 
     //if channel doesnt exist reject
     if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
-        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "403 :No such channel");
         return (0);
     }
 
     //is op to kick
     // if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-    //     Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+    //     Manager::sendIrcMessage("482 :Your're not channel operator");
     //     return (0);
     // }
 
     //if user not in channel
     if (!Manager::getChannels().find(channelName)->second.checkClient(target)) {
-        Manager::sendIrcMessage("441 :They aren't on that channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "441 :They aren't on that channel");
         return (0);
     }
 
     //cannot kick yourself
     if (client.getId() == target) {
-        Manager::sendIrcMessage("481 :Cannot kick yourself", client.getId());
+        Manager::sendIrcMessage(client.getId(), "481 :Cannot kick yourself");
         return (0);
     }
     return (1);
@@ -164,7 +164,7 @@ int Parser::kickParse(Client &client) {
 int Parser::topicParse(Client &client) {
     std::vector<std::string> command = client.getCommand();
     if (command.size() < 2) {
-        Manager::sendIrcMessage("461 TOPIC :Not enough parameters", client.getId());
+        Manager::sendIrcMessage(client.getId(), "461 TOPIC :Not enough parameters");
         return (0);
     }
     std::string channelName;
@@ -175,20 +175,20 @@ int Parser::topicParse(Client &client) {
         channelName = command[1];
     //if channel doesnt exist reject
     if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
-        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "403 :No such channel");
         return (0);
     }
 
     //if user not in channel
     if (!Manager::getChannels().find(channelName)->second.checkClient(client.getId())) {
-        Manager::sendIrcMessage("442 :You're not on that channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "442 :You're not on that channel");
         return (0);
     }
 
     //is op and mode topic is on
     if (Manager::getChannels().find(channelName)->second.getModeT() && \
     !Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-        Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+        Manager::sendIrcMessage(client.getId(), "482 :Your're not channel operator");
         return (0);
     }
     return (1);
@@ -197,7 +197,7 @@ int Parser::topicParse(Client &client) {
 int Parser::modeParse(Client &client) {
     std::vector<std::string> command = client.getCommand();
     if (command.size() < 2) {
-        Manager::sendIrcMessage("461 MODE :Not enough parameters", client.getId());
+        Manager::sendIrcMessage(client.getId(), "461 MODE :Not enough parameters");
         return (0);
     }
 
@@ -216,32 +216,32 @@ int Parser::modeParse(Client &client) {
         channelName = command[1];
     //if channel doesnt exist reject
     if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
-        Manager::sendIrcMessage("403 :No such channel", client.getId());
+        Manager::sendIrcMessage(client.getId(), "403 :No such channel");
         return (0);
     }
     //if channel exists there is no flag we send modes to user
     if (flag.empty()){
-        Manager::sendIrcMessage("324 :" + channelName + ": " + Manager::getChannels().find(channelName)->second.getChannelModes(), client.getId());
+        Manager::sendIrcMessage(client.getId(), "324 :" + channelName + ": " + Manager::getChannels().find(channelName)->second.getChannelModes());
         return (0);
     }
     //check if flag format is correct
     if (!flag.empty() && (flag.size() != 2 || (flag[0] != '+' && flag[0] != '-'))) {
-        Manager::sendIrcMessage("501 :Unknown MODE flag", client.getId());
+        Manager::sendIrcMessage(client.getId(), "501 :Unknown MODE flag");
         return (0);
     }
     //check if it is op
     // if (!Manager::getChannels().find(channelName)->second.IsOp(client.getId())) {
-    //     Manager::sendIrcMessage("482 :Your're not channel operator", client.getId());
+    //     Manager::sendIrcMessage(client.getId(), "482 :Your're not channel operator");
     //     return (0);
     // }
     //check if there is such flag
     if (flag[1] != 'i' && flag[1] != 't' && flag[1] != 'k' && flag[1] != 'o' && flag[1] != 'l') {
-        Manager::sendIrcMessage("421 :Unknown command", client.getId());
+        Manager::sendIrcMessage(client.getId(), "421 :Unknown command");
         return (0);
     }
     // std::cout << "flag = " << flag << "; arg = " << arg << "; e empty ta = " << (((flag[1] == 'k' && flag[0] == '+') || flag[1] != 'o') && arg.empty()) << std::endl;
     if (((flag[1] == 'k' && flag[0] == '+') || flag[1] == 'o') && arg.empty()) {
-        Manager::sendIrcMessage("461 MODE :Not enough parameters", client.getId());
+        Manager::sendIrcMessage(client.getId(), "461 MODE :Not enough parameters");
         return (0);
     }
 
@@ -249,7 +249,7 @@ int Parser::modeParse(Client &client) {
         //check if user exists
         int target = Manager::getIDbyNick(arg);
         if (target == -1) {
-            Manager::sendIrcMessage("401 :No such nick", client.getId());
+            Manager::sendIrcMessage(client.getId(), "401 :No such nick");
             return (0);
         }
     }

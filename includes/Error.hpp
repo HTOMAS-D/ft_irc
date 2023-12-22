@@ -11,6 +11,7 @@
 # define RPL_LIST				"322"
 # define RPL_LISTEND			"323"
 # define CHANNELMODEIS			"324"
+# define NOTOPIC				"331"
 # define TOPIC_CHANNEL			"332"
 # define INVITING				"341"
 # define RPL_WHOREPLY			"352"
@@ -37,7 +38,7 @@
 # define BADCHANNELKEY			"475"
 # define BADCHANNELNAME			"476"
 # define NOPRIVILEGES			"481"
-# define CHANOPRIVSNEEDED		"482"
+# define NOTCHANOP				"482"
 # define UMODEUNKNOWNFLAG		"501"
 # define RPL_ENDOFWHO			"315"
 
