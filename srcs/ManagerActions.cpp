@@ -42,7 +42,9 @@ void Manager::joinAction(Client &client){
         // }
         //Check if the channel exists, create if not
         if (_channels.find(channelName) == _channels.end()) {
-            _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName, "", "")));
+            //std::cout << "OLA" << std::endl;
+            // _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName)));
+            _channels[channelName] = Channel(channelName);
         }
         _channels[channelName].addClient(client.getId());
         sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
@@ -132,9 +134,8 @@ void Manager::privmsgAction(Client &client)
     // If everything is okay, send the message to the target
     if (targetName[0] == '#') {
         //Broadcast the message to all members of the channel
-        Channel &channel = Manager::getChannels().find(targetName)->second;
-        msg += "\r\n";
-        channel.channelMessage(formatMessage(client) + " PRIVMSG " + targetName + " :" + msg);
+        std::string formatmsg = formatMessage(client) + " PRIVMSG " + targetName + " :" + msg;
+        _channels.find(targetName)->second.clientMessage(client.getId(), formatmsg.c_str());
     } 
     else {
         // Target is a user, send the message directly to the user

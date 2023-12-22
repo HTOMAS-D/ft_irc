@@ -97,10 +97,12 @@ void    Socket::handleMessage(int i){
     Client &temporary = *Manager::getClientByID(i);
     temporary.setCommand(Manager::getClientBuffer(i).str());
     if (Parser::isAction(temporary.getCommand()[0], i)) {
+		std::cout << "action" << std::endl;
         Manager::runActions(*iter);
     }
     else {
         if (Manager::getClientByID(i)->getChannel().size()) {
+			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, Manager::getClientBuffer(i).str().size() - 1));
             Manager::getChannels().find(Manager::getClientByID(i)->getChannel())->second.clientMessage(i, Manager::getClientBuffer(i).str().c_str());
         }
         else {

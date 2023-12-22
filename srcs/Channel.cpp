@@ -32,14 +32,14 @@ Channel::Channel(std::string id, std::string pass, std::string topic){
     // << "ModeT = " << _ModeT << std::endl;
 }
 
-Channel::Channel(const Channel &src) {
-    std::cout << "aqui 1" << std::endl;
-    _channelId = src._channelId;
-    _key = src._key;
-    _topic = src._topic;
-    _ModeI = src._ModeI;
-    _ModeT = src._ModeT;
-}
+// Channel::Channel(const Channel &src) {
+//     std::cout << "aqui 1" << std::endl;
+//     _channelId = src._channelId;
+//     _key = src._key;
+//     _topic = src._topic;
+//     _ModeI = src._ModeI;
+//     _ModeT = src._ModeT;
+// }
 
 Channel &Channel::operator=(const Channel &src) {
     std::cout << "aqui 2" << std::endl;
@@ -61,6 +61,7 @@ void    Channel::addClient(int newClient) {
     //     }
     // }
     _Clients.push_back(newClient);
+    std::cout << "Client " << newClient << " added to channel " << _channelId << ", now with " << _Clients.size() << std::endl;
     removeInvited(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
     if (_ClientOperators.size() == 0) {
@@ -119,19 +120,25 @@ void    Channel::removeInvited(int id) {
     }
 }
 
+//Broadcast message to all clients in the channel
 void	Channel::channelMessage(std::string msg) {
+    std::cout << "inicio" << std::endl; 
+    std::cout << _Clients.size() << std::endl;
     for(int i = 0; i < (int)_Clients.size(); i++){
+        std::cout << i << std::endl; 
         if (send(_Clients[i], msg.c_str(), msg.size(), 0) == -1)
             std::cout << "error sending" << std::endl;
     }
 }
 
+//Send message to all clients in the channel except the sender
 void    Channel::clientMessage(int client, const char *msg) {
-    std::stringstream temp;
-    temp << Manager::getClientByID(client)->getNickName() << ": "<< msg;
+    std::cout << "inicio: " << _Clients[0] << std::endl;
+    std::string temp = Manager::getNickbyID(client) + ": " + msg;
 	for(int i = 0; i < (int)_Clients.size(); i++){
-        if (_Clients[i] != client && send(_Clients[i], temp.str().c_str(), temp.str().size(), 0) == -1)
+        if (_Clients[i] != client && Manager::sendIrcMessage((int)_Clients[i], temp) == -1) {
             std::cout << "error sending" << std::endl;
+        }
     }
 }
 

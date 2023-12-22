@@ -20,7 +20,7 @@ class Channel{
 		Channel(std::string id);
 		Channel(std::string id, std::string pass);
 		Channel(std::string id, std::string pass, std::string topic);
-		Channel(const Channel &src);
+		//Channel(const Channel &src);
 		Channel &operator=(const Channel &src);
         ~Channel();
 
