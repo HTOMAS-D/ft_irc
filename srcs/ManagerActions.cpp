@@ -1,5 +1,12 @@
 #include "../includes/Manager.hpp"
 
+// how we receive them:
+// * JOIN group
+// * KICK user group
+// * INVITE group user
+// * TOPIC user :topico
+// * MODE action
+
 void Manager::createMap(void) {
     _actionMap["JOIN"] = joinAction;
     _actionMap["NICK"] = nickAction;
@@ -8,48 +15,7 @@ void Manager::createMap(void) {
     _actionMap["TOPIC"] = topicAction;
     _actionMap["MODE"] = modeAction;
 	_actionMap["PRIVMSG"] = privmsgAction;
-
 }
-
-//PRIVMSG channel msg
-void Manager::privmsgAction(Client &client)
-{
-    std::vector<std::string> command = client.getCommand();
-    if (command.size() < 2 || (int)command[1].find(":") < 0) {
-		sendIrcMessage(formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters", client.getId());
-		return;
-	}
-    std::string channelName = command[1].substr(0, command[1].find(" "));
-    std::string msg = command[1].substr(command[1].find(":") + 1, command[1].size());
-    // Extract the target and the message
-
-    // Check if the target is a valid channel or user
-    // if (target[0] != '#' && !Manager::isUserInChannel(target, client.getChannel())) {
-    //     sendIrcMessage(formatMessage(client, ERR_NOSUCHNICK) + " " + target + " :No such nick/channel", client.getId());
-    //     return;
-    // }
-
-    // If everything is okay, send the message to the target
-    if (channelName[0] == '#') {
-        //Broadcast the message to all members of the channel
-        Channel &channel = Manager::getChannels().find(channelName)->second;
-        msg += "\r\n";
-        channel.channelMessage(formatMessage(client) + " PRIVMSG " + channelName + " :" + msg);
-    } 
-    else {
-        // Target is a user, send the message directly to the user
-        int targetId = Manager::getIDbyNick(channelName);
-        if (targetId != -1) {
-            std::string ircMessage = formatMessage(client) + " PRIVMSG " + channelName + " :" + msg;
-            sendIrcMessage(ircMessage, targetId);
-        } else {
-            // Handle the case where the target user does not exist
-            sendIrcMessage(formatMessage(client, NOSUCHNICK) + " " + channelName + " :No such nick", client.getId());
-        }
-    }
-}
-
-
 
 std::string Manager::formatMessage(Client &client) {
 	return (":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName());
@@ -62,15 +28,43 @@ std::string Manager::formatMessage(Client &client, std::string message)
 
 // std::string Manager::formatMessage(Channel &_channel,  std::string &message)
 // {
-// 	return (":" + _channel.getHostName() + " " + message + " " + _channel.getName());
+// 	return (":" + _channel.getChannelId() + " " + message + " " + _channel.getName());
 // }
+
+void Manager::joinAction(Client &client){
+    std::vector<std::string> command = client.getCommand();
+    std::string channelName = command[1];
+    if (Parser::joinParse(client)){
+        //Check if the client is already in the channel
+        // if (_channels.find(channelName)->second.checkClient(client.getId())) {
+        //     sendIrcMessage(client.getId(), Manager::formatMessage(client, NOTONCHANNEL));
+        //     return ;
+        // }
+        //Check if the channel exists, create if not
+        if (_channels.find(channelName) == _channels.end()) {
+            _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName, "", "")));
+        }
+        _channels[channelName].addClient(client.getId());
+        sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
+        sendNamesList(channelName, client);
+    }
+}
+
+void Manager::nickAction(Client &client)
+{
+    if (Parser::nickParse(client)) 
+    {
+        sendIrcMessage(client.getId(), ":" + client.getNickName() + " NICK :" + client.getCommand()[1]);
+        client.setNickName(client.getCommand()[1]);
+    }
+}
 
 void Manager::topicAction(Client &client) {
     if (Parser::topicParse(client)) {
         std::vector<std::string> command = client.getCommand();
-        std::string channelName;
-        std::string topic;
         std::stringstream topicMsg;
+        std::string topic;
+        std::string channelName;
         //if there is topic in cmd
         if ((int)command[1].find(":") > 0) {
             topic = command[1].substr(command[1].find(":") + 1, command[1].size());
@@ -80,22 +74,77 @@ void Manager::topicAction(Client &client) {
             channelName = command[1];
         topicMsg << ":" << client.getHostName() << " ";
         if ((int)command[1].find(":") < 0 && _channels.find(channelName)->second.getTopic().empty()) {
-            topicMsg << "331 " << client.getNickName() << " :No topic is set" << "\r\n";
-            send(client.getId(), topicMsg.str().c_str(), topicMsg.str().size(), 0);
+            sendIrcMessage(client.getId(), formatMessage(client, NOTOPIC) + " " + channelName + " :No topic is set");
         }
         else if ((int)command[1].find(":") < 0) {
-            topicMsg << "332 " << client.getNickName() << " :" << _channels.find(channelName)->second.getTopic() << "\r\n";
-            send(client.getId(), topicMsg.str().c_str(), topicMsg.str().size(), 0);
+            sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + " " + channelName + " :" + _channels.find(channelName)->second.getTopic());
         }
         else if (_channels.find(channelName)->second.getModeT() && !_channels.find(channelName)->second.IsOp(client.getId())) {
-            topicMsg << "482 " << client.getNickName() << " :Your're not channel operator" << "\r\n";
-            send(client.getId(), topicMsg.str().c_str(), topicMsg.str().size(), 0);
-        }
+            sendIrcMessage(client.getId(), formatMessage(client, NOTCHANOP) + " " + channelName + " :You're not channel operator");
+        }   
         else {
             _channels.find(channelName)->second.setTopic(topic);
-            topicMsg << "332 " << client.getNickName() << " " << _channels.find(channelName)->second.getChannelId() <<  " :"  << _channels.find(channelName)->second.getTopic() << "\r\n";
-            std::cout << "msg topic->" << topicMsg.str();
+            sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + " " + channelName + " :" + _channels.find(channelName)->second.getTopic());
             _channels.find(channelName)->second.channelMessage(topicMsg.str().c_str());
+        }
+    }
+}
+
+void Manager::inviteAction(Client &client) {
+    if (Parser::inviteParse(client)) {
+        std::vector<std::string> command = client.getCommand();
+        std::string nick = command[1].substr(0, command[1].find(" "));
+        int id = Manager::getIDbyNick(nick);
+        std::string channel = command[1].substr(command[1].find(" ") + 1, command[1].size());
+        
+        //prepare msg for user
+        std::stringstream invMessage;
+        invMessage << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
+        << " INVITE " << nick << " " << channel << "\r\n";
+        //add invited id to channel's list
+        Manager::getChannels().find(channel)->second.addInvited(id);
+        send(client.getId(), invMessage.str().c_str(), invMessage.str().size(), 0);
+        //prepare msg for invited user
+        std::stringstream invNotif;
+        invNotif << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
+        << " NOTICE " << nick << " you have been invited to join " << channel << "\r\n";
+        send(id, invNotif.str().c_str(), invNotif.str().size(), 0);
+    }
+}
+
+void Manager::privmsgAction(Client &client)
+{
+    std::vector<std::string> command = client.getCommand();
+    if (command.size() < 2 || (int)command[1].find(":") < 0) {
+		sendIrcMessage(client.getId(), formatMessage(client, NEEDMOREPARAMS) + " COMMAND ERROR :Not enough parameters");
+		return;
+	}
+    std::string targetName = command[1].substr(0, command[1].find(" "));
+    std::string msg = command[1].substr(command[1].find(":") + 1, command[1].size());
+    // Extract the target and the message
+
+    // Check if the target is a valid channel or user
+    // if (target[0] != '#' && !Manager::isUserInChannel(target, client.getChannel())) {
+    //     sendIrcMessage(client.getId(), formatMessage(client, ERR_NOSUCHNICK) + " " + target + " :No such nick/channel");
+    //     return;
+    // }
+
+    // If everything is okay, send the message to the target
+    if (targetName[0] == '#') {
+        //Broadcast the message to all members of the channel
+        Channel &channel = Manager::getChannels().find(targetName)->second;
+        msg += "\r\n";
+        channel.channelMessage(formatMessage(client) + " PRIVMSG " + targetName + " :" + msg);
+    } 
+    else {
+        // Target is a user, send the message directly to the user
+        int targetId = Manager::getIDbyNick(targetName);
+        if (targetId != -1) {
+            std::string ircMessage = formatMessage(client) + " PRIVMSG " + targetName + " :" + msg;
+            sendIrcMessage(targetId, ircMessage);
+        } else {
+            // Handle the case where the target user does not exist
+            sendIrcMessage(client.getId(), formatMessage(client, NOSUCHNICK) + " " + targetName + " :No such nick");
         }
     }
 }
@@ -125,57 +174,6 @@ void Manager::kickAction(Client &client) {
     }
 }
 
-void Manager::nickAction(Client &client)
-{
-    if (Parser::nickParse(client)) 
-    {
-        sendIrcMessage(":" + client.getNickName() + " NICK :" + client.getCommand()[1], client.getId());
-        client.setNickName(client.getCommand()[1]);
-    }
-}
-
-void Manager::joinAction(Client &client){
-    std::vector<std::string> command = client.getCommand();
-    std::string channelName = command[1];
-    if (Parser::joinParse(client)){
-        //Check if the client is already in the channel
-        // if (_channels.find(channelName)->second.checkClient(client.getId())) {
-        //     sendIrcMessage(Manager::formatMessage(client, NOTONCHANNEL), client.getId());
-        //     return ;
-        // }
-        //Check if the channel exists, create if not
-        if (_channels.find(channelName) == _channels.end()) {
-            _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName, "", "")));
-        }
-        _channels[channelName].addClient(client.getId());
-        sendIrcMessage(formatMessage(client) + " JOIN " + channelName, client.getId());
-        sendNamesList(channelName, client);
-    }
-}
-
-void Manager::inviteAction(Client &client) {
-    if (Parser::inviteParse(client)) {
-        //prepare arguments
-        std::vector<std::string> command = client.getCommand();
-        std::string nick = command[1].substr(0, command[1].find(" "));
-        int id = Manager::getIDbyNick(nick);
-        std::string channel = command[1].substr(command[1].find(" ") + 1, command[1].size());
-        //prepare msg for user
-        std::stringstream invMessage;
-        invMessage << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
-        << " INVITE " << nick << " " << channel << "\r\n";
-        //add invited id to channel's list
-        Manager::getChannels().find(channel)->second.addInvited(id);
-        send(client.getId(), invMessage.str().c_str(), invMessage.str().size(), 0);
-        //prepare msg for invited user
-        std::stringstream invNotif;
-        invNotif << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
-        << " NOTICE " << nick << " you have been invited to join " << channel << "\r\n";
-        send(id, invNotif.str().c_str(), invNotif.str().size(), 0);
-    }
-}
-
-
 void Manager::sendNamesList(const std::string &channelName, Client &client) {
     std::string _serverName = "my_server";
     std::vector<std::string> namesList = _channels[channelName].getNamesList();
@@ -185,14 +183,14 @@ void Manager::sendNamesList(const std::string &channelName, Client &client) {
         if (i != namesList.size() - 1)
             namesMessage += " ";
     }
-    sendIrcMessage(namesMessage, client.getId());
+    sendIrcMessage(client.getId(), namesMessage);
     // Send end of NAMES list
     std::string endOfNamesMessage = ":" + _serverName + " 366 " + \
         Manager::formatMessage(client) + " " + channelName + " :End of /NAMES list";
-    sendIrcMessage(endOfNamesMessage, client.getId());
+    sendIrcMessage(client.getId(), endOfNamesMessage);
 }
 
-int	Manager::sendIrcMessage(std::string message, int clientId)
+int	Manager::sendIrcMessage(int clientId, std::string message)
 {
 	message = message + "\r\n";
 	std::cout << "Sending message: " << message;
@@ -210,6 +208,6 @@ void Manager::runActions(Client &client){
         it->second(client);
     }
     else{
-        Manager::sendIrcMessage("421 :Unknown command", client.getId());
+        Manager::sendIrcMessage(client.getId(), "421 :Unknown command");
     }
 }

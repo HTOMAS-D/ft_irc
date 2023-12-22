@@ -80,7 +80,7 @@ void Client::setCommand(std::string cmd) {
         cmd.erase(0, 1);
     std::string holder;
     if ((int)cmd.find(" ") > 0) {
-        holder = Parser::toUpper(cmd.substr(0, cmd.find(" ")));
+        holder = Parser::toUpper(((cmd.substr(0, cmd.find(" ")))));
         _cmd.push_back(holder);
         _cmd.push_back(cmd.substr(cmd.find(" ") + 1, cmd.size()));
     }
