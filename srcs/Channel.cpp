@@ -61,7 +61,8 @@ void    Channel::addClient(int newClient) {
     //     }
     // }
     _Clients.push_back(newClient);
-    std::cout << "Client " << newClient << " added to channel " << _channelId << ", now with " << _Clients.size() << std::endl;
+    std::cout.flush();
+    std::cout << "Client " << newClient << " added to channel " << _channelId << ", now with " << _Clients.size() << "and " << _ClientOperators.size() << " ops" << std::endl;
     removeInvited(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
     if (_ClientOperators.size() == 0) {
@@ -72,12 +73,14 @@ void    Channel::addClient(int newClient) {
 }
 
 void    Channel::addClientToOp(int newOp) {
+
     std::string temp = "You have been promoted to Operator";
     for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == newOp){
            return ;
         }
     }
+    std::cout << "client " << newOp << " promoted to op" << std::endl;
     _ClientOperators.push_back(newOp);
     send(newOp, temp.c_str(), temp.size(), 0);
 }
@@ -122,8 +125,8 @@ void    Channel::removeInvited(int id) {
 
 //Broadcast message to all clients in the channel
 void	Channel::channelMessage(std::string msg) {
-    std::cout << "inicio" << std::endl; 
-    std::cout << _Clients.size() << std::endl;
+    std::cout << "channel " << this->_channelId << " sending msg " << msg << std::endl;
+    std::cout << "channel members length " << _Clients.size() << std::endl;
     for(int i = 0; i < (int)_Clients.size(); i++){
         std::cout << i << std::endl; 
         if (send(_Clients[i], msg.c_str(), msg.size(), 0) == -1)
@@ -133,7 +136,9 @@ void	Channel::channelMessage(std::string msg) {
 
 //Send message to all clients in the channel except the sender
 void    Channel::clientMessage(int client, const char *msg) {
-    std::cout << "inicio: " << _Clients[0] << std::endl;
+    std::cout.flush();
+    std::cout << "client " << client << "sending msg " << msg << std::endl;
+    std::cout << "channel members length " << _Clients.size() << std::endl;
     std::string temp = Manager::getNickbyID(client) + ": " + msg;
 	for(int i = 0; i < (int)_Clients.size(); i++){
         if (_Clients[i] != client && Manager::sendIrcMessage((int)_Clients[i], temp) == -1) {
@@ -236,4 +241,17 @@ std::vector<std::string> Channel::getNamesList() {
     }
 
     return namesList;
+}
+
+std::string& Channel::sanitizeName(std::string& str) {
+    static const std::string whitespace = " \t\n\r\f\v";
+    size_t start = str.find_first_not_of(whitespace);
+    if (start == std::string::npos) {
+        str.clear();
+        return str;
+    }
+    str.erase(0, start);
+    size_t end = str.find_last_not_of(whitespace);
+    str.erase(end + 1);
+    return str;
 }
