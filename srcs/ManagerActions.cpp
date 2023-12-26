@@ -33,7 +33,7 @@ std::string Manager::formatMessage(Client &client, std::string message)
 
 void Manager::joinAction(Client &client){
     std::vector<std::string> command = client.getCommand();
-    std::string channelName = Channel::sanitizeName(command[1]);
+    std::string channelName = command[1];
     if (Parser::joinParse(client)){
         //Check if the client is already in the channel
         // if (_channels.find(channelName)->second.checkClient(client.getId())) {
@@ -71,10 +71,7 @@ void Manager::topicAction(Client &client) {
         if ((int)command[1].find(":") > 0) {
             topic = command[1].substr(command[1].find(":") + 1, command[1].size());
             channelName = command[1].substr(0, command[1].find(" "));
-            Channel::sanitizeName(channelName);
         }
-        else
-            channelName = Channel::sanitizeName(command[1]);
         topicMsg << ":" << client.getHostName() << " ";
         if ((int)command[1].find(":") < 0 && _channels.find(channelName)->second.getTopic().empty()) {
             sendIrcMessage(client.getId(), formatMessage(client, NOTOPIC) + " " + channelName + " :No topic is set");
@@ -134,12 +131,14 @@ void Manager::privmsgAction(Client &client)
 
     // If everything is okay, send the message to the target
     if (targetName[0] == '#') {
-        std::string channelName = Channel::sanitizeName(targetName);
+        std::string channelName = targetName;
         std::cout << "pre msg send to " << channelName << std::endl;
         //Broadcast the message to all members of the channel
         std::string formatmsg = formatMessage(client) + " PRIVMSG " + targetName + " :" + msg;
-        Channel& channel = _channels[channelName];
-        channel.clientMessage(client.getId(), formatmsg.c_str());
+        if (_channels[channelName].checkClient(client.getId()))
+            _channels[channelName].clientMessage(client.getId(), formatmsg.c_str());
+        else
+            sendIrcMessage(client.getId(), formatMessage(client, NOTONCHANNEL) + " " + targetName + " :Not in channel");
     } 
     else {
         // Target is a user, send the message directly to the user
@@ -158,7 +157,6 @@ void Manager::kickAction(Client &client) {
     if(Parser::kickParse(client)) {
         std::vector<std::string> command = client.getCommand();
         std::string channelName = command[1].substr(0, command[1].find(" "));
-        Channel::sanitizeName(channelName);
         std::string user = command[1].substr(command[1].find(" ") + 1, command[1].size());
         std::string comment = "";
 

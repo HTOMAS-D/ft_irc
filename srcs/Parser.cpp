@@ -55,6 +55,7 @@ int Parser::nickParse(Client &client) {
     return 1;
 }
 
+//ADD MORE RESTRICTIONS TO CHANNEL NAMES
 int Parser::joinParse(Client &client)
 {
     if (client.getCommand().size() < 2){
@@ -254,4 +255,18 @@ int Parser::modeParse(Client &client) {
         }
     }
     return (1);
+}
+
+
+std::string& Parser::sanitizeBuffer(std::string& str) {
+    static const std::string whitespace = "\t\n\r\f\v";
+    size_t start = str.find_first_not_of(whitespace);
+    if (start == std::string::npos) {
+        str.clear();
+        return str;
+    }
+    str.erase(0, start);
+    size_t end = str.find_last_not_of(whitespace);
+    str.erase(end + 1);
+    return str;
 }

@@ -93,6 +93,11 @@ void	Socket::handleData(int i) {
 }
 
 void    Socket::handleMessage(int i){
+	//to take out /r and /n
+	std::string  temp = Manager::getClientBuffer(i).str();
+	// std::cout << "Msg antes:" << temp << "; nr de cha:" << temp.size() << std::endl;
+	Manager::getClientBuffer(i).str(Parser::sanitizeBuffer(temp));
+	// std::cout << "Msg depois:" << Manager::getClientBuffer(i).str() << "; nr de cha:" << Manager::getClientBuffer(i).str().size() << std::endl;
     std::vector<Client>::iterator iter = Manager::getClientByID(i);
     Client &temporary = *Manager::getClientByID(i);
     temporary.setCommand(Manager::getClientBuffer(i).str());
@@ -102,11 +107,11 @@ void    Socket::handleMessage(int i){
     }
     else {
         if (Manager::getClientByID(i)->getChannel().size()) {
-			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, Manager::getClientBuffer(i).str().size() - 1));
             Manager::getChannels()[Manager::getClientByID(i)->getChannel()].clientMessage(i, Manager::getClientBuffer(i).str().c_str());
         }
         else {
-            send(i, "You are not in a channel, please join a channel!\n", 50, 0);
+			std::cout << "sending regular your not in channel msg" << std::endl;
+            send(i, "You are not in a channel, please join a channel!\n", 49, 0);
         }
     }
 }

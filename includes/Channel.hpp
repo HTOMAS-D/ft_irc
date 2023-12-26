@@ -59,8 +59,6 @@ class Channel{
 
 		bool checkClient(int clientId) const;
 		std::vector<std::string> getNamesList();
-
-		static std::string& sanitizeName(std::string& str);
 };
 
 #endif

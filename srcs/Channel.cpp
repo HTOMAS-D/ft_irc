@@ -137,11 +137,10 @@ void	Channel::channelMessage(std::string msg) {
 //Send message to all clients in the channel except the sender
 void    Channel::clientMessage(int client, const char *msg) {
     std::cout.flush();
-    std::cout << "client " << client << "sending msg " << msg << std::endl;
+    std::cout << "client " << client << " sending msg " << msg << std::endl;
     std::cout << "channel members length " << _Clients.size() << std::endl;
-    std::string temp = Manager::getNickbyID(client) + ": " + msg;
 	for(int i = 0; i < (int)_Clients.size(); i++){
-        if (_Clients[i] != client && Manager::sendIrcMessage((int)_Clients[i], temp) == -1) {
+        if (_Clients[i] != client && Manager::sendIrcMessage((int)_Clients[i], msg) == -1) {
             std::cout << "error sending" << std::endl;
         }
     }
@@ -241,17 +240,4 @@ std::vector<std::string> Channel::getNamesList() {
     }
 
     return namesList;
-}
-
-std::string& Channel::sanitizeName(std::string& str) {
-    static const std::string whitespace = " \t\n\r\f\v";
-    size_t start = str.find_first_not_of(whitespace);
-    if (start == std::string::npos) {
-        str.clear();
-        return str;
-    }
-    str.erase(0, start);
-    size_t end = str.find_last_not_of(whitespace);
-    str.erase(end + 1);
-    return str;
 }
