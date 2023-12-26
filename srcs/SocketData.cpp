@@ -103,7 +103,7 @@ void    Socket::handleMessage(int i){
     else {
         if (Manager::getClientByID(i)->getChannel().size()) {
 			Manager::getClientBuffer(i).str(Manager::getClientBuffer(i).str().substr(0, Manager::getClientBuffer(i).str().size() - 1));
-            Manager::getChannels().find(Manager::getClientByID(i)->getChannel())->second.clientMessage(i, Manager::getClientBuffer(i).str().c_str());
+            Manager::getChannels()[Manager::getClientByID(i)->getChannel()].clientMessage(i, Manager::getClientBuffer(i).str().c_str());
         }
         else {
             send(i, "You are not in a channel, please join a channel!\n", 50, 0);
