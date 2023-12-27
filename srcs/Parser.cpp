@@ -241,11 +241,11 @@ int Parser::modeParse(Client &client) {
         return (0);
     }
     // std::cout << "flag = " << flag << "; arg = " << arg << "; e empty ta = " << (((flag[1] == 'k' && flag[0] == '+') || flag[1] != 'o') && arg.empty()) << std::endl;
-    if (((flag[1] == 'k' && flag[0] == '+') || flag[1] == 'o') && arg.empty()) {
+    //check if several flags have their arguments
+    if (((flag[1] == 'k' && flag[0] == '+') || (flag[1] == 'l' && flag[0] == '+') || flag[1] == 'o') && arg.empty()) {
         Manager::sendIrcMessage(client.getId(), "461 MODE :Not enough parameters");
         return (0);
     }
-
     if (flag[1] == 'o') {
         //check if user exists
         int target = Manager::getIDbyNick(arg);
@@ -254,6 +254,7 @@ int Parser::modeParse(Client &client) {
             return (0);
         }
     }
+    //INPUT HERE F FLAG PARSE
     return (1);
 }
 

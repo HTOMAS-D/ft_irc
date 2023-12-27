@@ -28,6 +28,12 @@ void Manager::modeAction(Client &client) {
 				_channels.find(channelName)->second.removeOp(target);
 			// add broadcast user list update
 		}
-		//add l rule
+		else if (flag[1] == 'l') {
+			arg = flag.substr(flag.find(" ") + 1, flag.size());
+			if (flag[0] == '+')
+				_channels.find(channelName)->second.setModeL(atoi(arg.c_str()));
+			else
+				_channels.find(channelName)->second.setModeL(0);
+		}
 	}
 }

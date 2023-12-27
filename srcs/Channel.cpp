@@ -6,43 +6,21 @@ Channel::Channel(std::string id){
     _topic = "";
     _ModeI = 0;
     _ModeT = 0;
+    _limit = 0;
     std::cout << "Channel created with id: " << id << std::endl;
-}
-
-Channel::Channel(std::string id, std::string pass){
-    _channelId = id;
-    _key = pass;
-    _topic = "";
-    _ModeI = 0;
-    _ModeT = 0;
-    std::cout << "Channel created with id: " << id << std::endl;
-}
-
-Channel::Channel(std::string id, std::string pass, std::string topic){
-    std::cout << "aqui 3" << std::endl;
-    _channelId = id;
-    _key = pass;
-    _topic = topic;
-    _ModeI = 0;
-    _ModeT = 0;
-    std::cout << "Channel created with id: " << id << std::endl \
-    << "Topic = " << _topic << std::endl;
-    // << "Pass = " << _key << std::endl 
-    // << "ModeI = " << _ModeI << std::endl
-    // << "ModeT = " << _ModeT << std::endl;
 }
 
 // Channel::Channel(const Channel &src) {
-//     std::cout << "aqui 1" << std::endl;
+//     // std::cout << "aqui 1" << std::endl;
 //     _channelId = src._channelId;
 //     _key = src._key;
 //     _topic = src._topic;
 //     _ModeI = src._ModeI;
 //     _ModeT = src._ModeT;
+//     _limit = src._limit;
 // }
 
 Channel &Channel::operator=(const Channel &src) {
-    std::cout << "aqui 2" << std::endl;
     _channelId = src._channelId;
     _key = src._key;
     _topic = src._topic;
@@ -55,11 +33,9 @@ Channel::~Channel(){}
 
 void    Channel::addClient(int newClient) {
     std::stringstream temp;
-    // for(int i = 0; i < (int)_Clients.size(); i++){
-    //     if(_Clients[i] == newClient){
-    //        return ;
-    //     }
-    // }
+    //check if limit flag is up and restrict
+    if (_limit && (int)_Clients.size() == _limit)
+        return ;
     _Clients.push_back(newClient);
     std::cout.flush();
     std::cout << "Client " << newClient << " added to channel " << _channelId << ", now with " << _Clients.size() << "and " << _ClientOperators.size() << " ops" << std::endl;
@@ -176,6 +152,10 @@ int &Channel::getModeT() {
     return _ModeT;
 }
 
+int &Channel::getModeL() {
+    return _limit;
+}
+
 std::string Channel::getChannelModes() {
     std::string modes;
 
@@ -188,9 +168,13 @@ std::string Channel::getChannelModes() {
     else
         modes += "-t ";
     if (!_key.empty())
-        modes += "+k";
+        modes += "+k ";
     else
-        modes += "-k";
+        modes += "-k ";
+    if (!_limit)
+        modes += "-l";
+    else
+        modes += "+l";
     return (modes);
 }
 
@@ -228,6 +212,10 @@ void Channel::setModeT(int flag) {
         _ModeT = 0;
     else
         _ModeT = 1;
+}
+
+void Channel::setModeL(int flag) {
+    _limit = flag;
 }
 
 std::vector<std::string> Channel::getNamesList() {
