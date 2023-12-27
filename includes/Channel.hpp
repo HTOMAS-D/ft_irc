@@ -10,16 +10,15 @@ class Channel{
         std::vector<int> _ClientOperators; //talvez mapa
         std::vector<int> _Clients; // Tem todos os clients incluindo ops, para mandar msg a todos
 		std::vector<int> _invited; //users invited to channel
+		//flags de MODES
 		std::string			_key; //password used has flag too
 		std::string			_topic; // descricao do channel
-		//flags de MODES
 		int					_ModeI; // Invite only
 		int					_ModeT; // restrictions of the topic cmd to channel ops
+		int					_limit; // limit restriction
     public:
 		Channel() {;}
 		Channel(std::string id);
-		Channel(std::string id, std::string pass);
-		Channel(std::string id, std::string pass, std::string topic);
 		//Channel(const Channel &src);
 		Channel &operator=(const Channel &src);
         ~Channel();
@@ -47,6 +46,7 @@ class Channel{
 		std::string &getTopic();
 		int &getModeI();
 		int &getModeT();
+		int &getModeL();
 		std::string getChannelModes();
 		int IsOp(int i);
 		int IsInvited(int i);
@@ -56,6 +56,7 @@ class Channel{
 		void setTopic(std::string topic) {_topic = topic;}
 		void setModeI(int flag);
 		void setModeT(int flag);
+		void setModeL(int flag);
 
 		bool checkClient(int clientId) const;
 		std::vector<std::string> getNamesList();
