@@ -26,6 +26,7 @@ Channel &Channel::operator=(const Channel &src) {
     _topic = src._topic;
     _ModeI = src._ModeI;
     _ModeT = src._ModeT;
+    _limit = src._limit;
     return (*this);
 }
 
@@ -34,11 +35,9 @@ Channel::~Channel(){}
 void    Channel::addClient(int newClient) {
     std::stringstream temp;
     //check if limit flag is up and restrict
-    if (_limit && (int)_Clients.size() == _limit)
+    if (_limit && (int)_Clients.size() == _limit) //Talvez mudar isto po parse do join ?
         return ;
     _Clients.push_back(newClient);
-    std::cout.flush();
-    std::cout << "Client " << newClient << " added to channel " << _channelId << ", now with " << _Clients.size() << "and " << _ClientOperators.size() << " ops" << std::endl;
     removeInvited(newClient);
     Manager::getClientByID(newClient)->setChannel(_channelId);
     if (_ClientOperators.size() == 0) {
@@ -49,7 +48,6 @@ void    Channel::addClient(int newClient) {
 }
 
 void    Channel::addClientToOp(int newOp) {
-
     std::string temp = "You have been promoted to Operator";
     for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == newOp){
@@ -70,7 +68,7 @@ void    Channel::addInvited(int newInvited) {
     _invited.push_back(newInvited);
 }
 
-void    Channel::removeClient(int id) { //SERA QUE DEVO RETIRAR TAMBEM JA DOS OPS???
+void    Channel::removeClient(int id) {
     for(int i = 0; i < (int)_Clients.size(); i++){
         if(_Clients[i] == id){
             _Clients.erase(_Clients.begin() + i);
@@ -101,8 +99,6 @@ void    Channel::removeInvited(int id) {
 
 //Broadcast message to all clients in the channel
 void	Channel::channelMessage(std::string msg) {
-    std::cout << "channel " << this->_channelId << " sending msg " << msg << std::endl;
-    std::cout << "channel members length " << _Clients.size() << std::endl;
     for(int i = 0; i < (int)_Clients.size(); i++){
         std::cout << i << std::endl; 
         if (send(_Clients[i], msg.c_str(), msg.size(), 0) == -1)
@@ -112,9 +108,6 @@ void	Channel::channelMessage(std::string msg) {
 
 //Send message to all clients in the channel except the sender
 void    Channel::clientMessage(int client, const char *msg) {
-    std::cout.flush();
-    std::cout << "client " << client << " sending msg " << msg << std::endl;
-    std::cout << "channel members length " << _Clients.size() << std::endl;
 	for(int i = 0; i < (int)_Clients.size(); i++){
         if (_Clients[i] != client && Manager::sendIrcMessage((int)_Clients[i], msg) == -1) {
             std::cout << "error sending" << std::endl;
@@ -223,7 +216,11 @@ std::vector<std::string> Channel::getNamesList() {
 
     for (int i = 0; i < (int)_Clients.size(); i++) {
         int clientId = _Clients[i];
-        std::string nickname = Manager::getNickbyID(clientId);
+        std::string nickname;
+        if (IsOp(clientId))
+            nickname = "@" + Manager::getNickbyID(clientId);
+        else
+            nickname = "%" +Manager::getNickbyID(clientId);
         namesList.push_back(nickname);
     }
 

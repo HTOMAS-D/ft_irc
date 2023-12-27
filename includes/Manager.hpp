@@ -37,6 +37,7 @@ class Manager{
         static int	sendIrcMessage(int clientId, std::string message);
         static std::map<std::string, eventFunction> &getActionMap();
         static std::map<std::string, Channel> &getChannels();
+        static int normalMsg(Client &client);
 
         static void sendNamesList(const std::string &channelName, Client &client);
         static std::string formatMessage(Client &client);

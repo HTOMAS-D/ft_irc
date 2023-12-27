@@ -69,3 +69,9 @@ int Manager::getIDbyNick(std::string nick) {
 	}
 	return (-1);
 }
+
+int Manager::normalMsg(Client &client) {
+	client.getBuffer().str("PRIVMSG " + client.getChannel() + " :" + client.getBuffer().str());
+	client.setCommand(client.getBuffer().str());
+	return (1);
+}

@@ -100,18 +100,21 @@ void    Socket::handleMessage(int i){
 	// std::cout << "Msg depois:" << Manager::getClientBuffer(i).str() << "; nr de cha:" << Manager::getClientBuffer(i).str().size() << std::endl;
     std::vector<Client>::iterator iter = Manager::getClientByID(i);
     Client &temporary = *Manager::getClientByID(i);
-    temporary.setCommand(Manager::getClientBuffer(i).str());
-    if (Parser::isAction(temporary.getCommand()[0], i)) {
+	temporary.setCommand(Manager::getClientBuffer(i).str());
+    if (Parser::isAction(temporary.getCommand()[0], i) || (Manager::getClientByID(i)->getChannel().size() && Manager::normalMsg(temporary))) {
 		std::cout << "action" << std::endl;
         Manager::runActions(*iter);
     }
     else {
-        if (Manager::getClientByID(i)->getChannel().size()) {
-            Manager::getChannels()[Manager::getClientByID(i)->getChannel()].clientMessage(i, Manager::getClientBuffer(i).str().c_str());
-        }
-        else {
+        // if (Manager::getClientByID(i)->getChannel().size()) {
+		// 	Manager::getClientBuffer(i).str("PRIVMSG " + temporary.getChannel() + " :" + Manager::getClientBuffer(i).str());
+		// 	temporary.setCommand(Manager::getClientBuffer(i).str());
+		// 	std::cout << Manager::getClientBuffer(i).str() << std::endl;
+		// 	Manager::runActions(*iter);
+        // }
+        // else {
 			std::cout << "sending regular your not in channel msg" << std::endl;
             send(i, "You are not in a channel, please join a channel!\n", 49, 0);
-        }
+        // }
     }
 }
