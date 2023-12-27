@@ -102,7 +102,6 @@ void    Socket::handleMessage(int i){
     Client &temporary = *Manager::getClientByID(i);
 	temporary.setCommand(Manager::getClientBuffer(i).str());
     if (Parser::isAction(temporary.getCommand()[0], i) || (Manager::getClientByID(i)->getChannel().size() && Manager::normalMsg(temporary))) {
-		std::cout << "action" << std::endl;
         Manager::runActions(*iter);
     }
     else {
