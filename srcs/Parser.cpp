@@ -202,7 +202,6 @@ int Parser::modeParse(Client &client) {
         Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " MODE ERROR :Not enough parameters");
         return (0);
     }
-
     std::string channelName;
     std::string flag = "";
     std::string arg = "";
@@ -291,6 +290,27 @@ int Parser::whoParse(Client &client) {
     return (1);
 }
 
+int Parser::userParse(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    if (command.size() < 2 || (int)command[1].find(":") < 0) {
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " USER ERROR :Not enough parameters");
+        return (0);
+    }
+    std::string username = command[1].substr(0, command[1].find(" "));
+    std::string theRest = command[1].substr(command[1].find(" ") + 1, 3);
+    if (theRest != "0 *") {
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, UNKNOWNCOMMAND) + " : USAGE: USER <username> 0 * :<realname>");
+    }
+    for (int i = 0; i < (int)Manager::getClient().size(); i++) {
+        if (Manager::getClient()[i].getUserName() == username) {
+                Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, ERR_ALREADYREGISTERED) + ":You are already registered");
+            return 0;
+        }
+    }
+    std::string realname = command[1].substr(command[1].find(":") + 1, command[1].size());
+    //wtf do i do with this shit
+    return (1);
+}
 
 std::string& Parser::sanitizeBuffer(std::string& str) {
     static const std::string whitespace = "\t\n\r\f\v";

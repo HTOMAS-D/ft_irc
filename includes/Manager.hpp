@@ -35,6 +35,7 @@ class Manager{
         static void modeAction(Client &client );
         static void nickAction(Client &client);
         static void whoAction(Client &client);
+        static void userAction(Client &client);
         static void runActions(Client &client);
         static void privmsgAction(Client &client);
         static int	sendIrcMessage(int clientId, std::string message);

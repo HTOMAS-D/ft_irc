@@ -16,6 +16,7 @@ void Manager::createMap(void) {
     _actionMap["MODE"] = modeAction;
 	_actionMap["PRIVMSG"] = privmsgAction;
     _actionMap["WHO"] = whoAction;
+    _actionMap["USER"] = userAction;
 }
 
 std::string Manager::formatMessage(Client &client) {
@@ -212,6 +213,14 @@ void Manager::whoAction(Client &client) {
             //send everyone in that channel
             sendWhoMessage(_channels.find(channelName)->second.getClients(), client, channelName);
         }
+    }
+}
+
+void Manager::userAction(Client &client) {
+    if (Parser::userParse(client)) {
+        std::vector<std::string> command = client.getCommand();
+        std::string username = command[1].substr(0, command[1].find(" "));
+        client.setUserName(username);
     }
 }
 
