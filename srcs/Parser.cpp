@@ -223,7 +223,7 @@ int Parser::modeParse(Client &client) {
     }
     //if channel exists there is no flag we send modes to user
     if (flag.empty()){
-        Manager::sendIrcMessage(client.getId(), "324 :" + channelName + ": " + Manager::getChannels().find(channelName)->second.getChannelModes());
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, CHANNELMODEIS) + " " + channelName + ": " + Manager::getChannels().find(channelName)->second.getChannelModes());
         return (0);
     }
     //check if flag format is correct
@@ -260,6 +260,33 @@ int Parser::modeParse(Client &client) {
     if (flag[1] == 'l' && (int)arg.find_first_not_of("0123456789", 0) >= 0) {
         Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " MODE ERROR :Numeric only");
             return (0);
+    }
+    return (1);
+}
+
+int Parser::whoParse(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    //normal who without mask
+    if (command.size() < 2) {
+        return (1);
+    }
+    std::string channelName;
+    std::string arg = "";
+    if ((int)command[1].find(" ") > 0) {
+        channelName = command[1].substr(0, command[1].find(" "));
+        arg = command[1].substr(command[1].find(" ") + 1, command[1].size());
+    }
+    else
+        channelName = command[1];
+    //if channel doesnt exist reject
+    if (Manager::getChannels().find(channelName) == Manager::getChannels().end()){
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, ERR_NOSUCHCHANNEL) + " " + channelName + " :No such channel");
+        return (0);
+    }
+    //check for wrong who usage
+    if (arg != "" && arg != "o") {
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, UNKNOWNCOMMAND) + " : USAGE: WHO [<mask> [<o>]]");
+        return (0);
     }
     return (1);
 }

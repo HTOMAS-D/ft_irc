@@ -3,10 +3,10 @@
 std::vector<Client> Manager::_clients;
 std::map<std::string, eventFunction> Manager::_actionMap;
 std::map<std::string, Channel> Manager::_channels;
+std::string hostName = "localhost";
 
-
-void Manager::addClient(int id, std::string hostname){
-    _clients.push_back(Client(id, hostname));
+void Manager::addClient(int id){
+    _clients.push_back(Client(id));
     std::cout << "Client " << id << " added to Clients" << std::endl;
 }
 
@@ -68,6 +68,14 @@ int Manager::getIDbyNick(std::string nick) {
 			return (it->getId());
 	}
 	return (-1);
+}
+
+std::vector<int> Manager::getAllClientsIds() {
+	std::vector<int> res;
+	for(int i = 0; i < (int)_clients.size(); i++) {
+		res.push_back(_clients[i].getId());
+	}
+	return (res);
 }
 
 int Manager::normalMsg(Client &client) {

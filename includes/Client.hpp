@@ -15,7 +15,7 @@ class Client{
 
     public:
 		Client(){};
-        Client(int id, std::string hostname);
+        Client(int id);
 		Client(const Client &src);
 		Client &operator=(const Client &src);
         ~Client();
@@ -24,7 +24,6 @@ class Client{
 		std::string       &getChannel() ;
 		std::string       &getNickName() ;
 		std::string 	  &getUserName() ;
-		std::string       &getHostName() ;
         int 			  getId() ;
 		std::stringstream &getBuffer() ;
 		std::string 	  getClientPrefix() ;

@@ -15,5 +15,6 @@ class Parser{
         static int topicParse(Client &client);
         static int modeParse(Client &client);
         static int joinParse(Client &client);
+        static int whoParse(Client &client);
 		static std::string& sanitizeBuffer(std::string& str);
 };

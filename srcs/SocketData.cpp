@@ -49,7 +49,7 @@ void    Socket::acceptedConnection(int newFd){
         strncpy(host, hostEntry->h_name, NI_MAXHOST);
         host[NI_MAXHOST - 1] = '\0';
         std::cout << "Connection accepted from " << host << std::endl;
-        Manager::addClient(newFd, host); // Pass the hostname to addClient
+        Manager::addClient(newFd);
     } else {
         std::cerr << "gethostbyname failed" << std::endl;
     }

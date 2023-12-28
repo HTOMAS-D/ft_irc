@@ -17,13 +17,15 @@ class Manager{
         static std::map<std::string, eventFunction> _actionMap;
 
     public:
-        static void addClient(int id, std::string hostname);
+        static std::string hostName;
+        static void addClient(int id);
         static void removeClient(int id);
 		static std::vector<Client> &getClient();
 		static std::vector<Client>::iterator getClientByID(int i);
 		static std::stringstream &getClientBuffer(int i);
         static std::string getNickbyID(int id);
         static int getIDbyNick(std::string nick);
+        static std::vector<int> getAllClientsIds();
 
         static void createMap(void);
         static void joinAction(Client &client);
@@ -32,9 +34,11 @@ class Manager{
         static void topicAction(Client &client );
         static void modeAction(Client &client );
         static void nickAction(Client &client);
+        static void whoAction(Client &client);
         static void runActions(Client &client);
         static void privmsgAction(Client &client);
         static int	sendIrcMessage(int clientId, std::string message);
+        static void sendWhoMessage(const std::vector<int> &list, Client &client, std::string const &channelName);
         static std::map<std::string, eventFunction> &getActionMap();
         static std::map<std::string, Channel> &getChannels();
         static int normalMsg(Client &client);

@@ -15,15 +15,27 @@ void Manager::createMap(void) {
     _actionMap["TOPIC"] = topicAction;
     _actionMap["MODE"] = modeAction;
 	_actionMap["PRIVMSG"] = privmsgAction;
+    _actionMap["WHO"] = whoAction;
 }
 
 std::string Manager::formatMessage(Client &client) {
-	return (":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName());
+	return (":" + client.getNickName() + "!" + client.getUserName() + "@" + hostName);
 }
 
 std::string Manager::formatMessage(Client &client, std::string message)
 {
-	return (":" + client.getHostName() + " " + message + " " + client.getNickName());
+	return (":" + hostName + " " + message + " " + client.getNickName());
+}
+
+void Manager::sendWhoMessage(const std::vector<int> &list, Client &client, std::string const &channelName) {
+    for (int i = 0; i < (int)list.size(); i++) {
+        Client &temp = *Manager::getClientByID(list[i]);
+        std::string status;
+        if (channelName != "*")
+            status = _channels.find(channelName)->second.IsOp(temp.getId()) ? "@" : "+";
+        sendIrcMessage(client.getId(), formatMessage(client, RPL_WHOREPLY) + " " + channelName + " localhost ft_irc " + temp.getNickName() + " H" + status + " :1 " + temp.getUserName());
+    }
+    sendIrcMessage(client.getId(), formatMessage(client, RPL_ENDOFWHO) + " " + channelName + " :End of WHO list");
 }
 
 // std::string Manager::formatMessage(Channel &_channel,  std::string &message)
@@ -72,7 +84,7 @@ void Manager::topicAction(Client &client) {
             topic = command[1].substr(command[1].find(":") + 1, command[1].size());
             channelName = command[1].substr(0, command[1].find(" "));
         }
-        topicMsg << ":" << client.getHostName() << " ";
+        topicMsg << ":" << hostName << " ";
         if ((int)command[1].find(":") < 0 && _channels.find(channelName)->second.getTopic().empty()) {
             sendIrcMessage(client.getId(), formatMessage(client, NOTOPIC) + " " + channelName + " :No topic is set");
         }
@@ -99,14 +111,14 @@ void Manager::inviteAction(Client &client) {
         
         //prepare msg for user
         std::stringstream invMessage;
-        invMessage << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
+        invMessage << ":" << client.getNickName() << "!" << client.getUserName() << "@" << hostName \
         << " INVITE " << nick << " " << channel << "\r\n";
         //add invited id to channel's list
         Manager::getChannels().find(channel)->second.addInvited(id);
         send(client.getId(), invMessage.str().c_str(), invMessage.str().size(), 0);
         //prepare msg for invited user
         std::stringstream invNotif;
-        invNotif << ":" << client.getNickName() << "!" << client.getUserName() << "@" << client.getHostName() \
+        invNotif << ":" << client.getNickName() << "!" << client.getUserName() << "@" << hostName \
         << " NOTICE " << nick << " you have been invited to join " << channel << "\r\n";
         send(id, invNotif.str().c_str(), invNotif.str().size(), 0);
     }
@@ -175,6 +187,31 @@ void Manager::kickAction(Client &client) {
         kickMsg << "\r\n";
         _channels.find(channelName)->second.channelMessage(kickMsg.str().c_str());
         _channels.find(channelName)->second.removeClient(Manager::getIDbyNick(user));
+    }
+}
+
+void Manager::whoAction(Client &client) {
+    if (Parser::whoParse(client)) {
+        std::vector<std::string> command = client.getCommand();
+        std::string channelName;
+        std::string arg = "";
+        if (command.size() > 1 && (int)command[1].find(" ") > 0) {
+            channelName = command[1].substr(0, command[1].find(" "));
+            arg = command[1].substr(command[1].find(" ") + 1, command[1].size());
+        }
+        else if (command.size() > 1)
+            channelName = command[1];
+        if (command.size() == 1) {
+            //send literally everyone
+            sendWhoMessage(getAllClientsIds(), client, "*");
+        }
+        else if (arg != "") {
+            sendWhoMessage(_channels.find(channelName)->second.getOps(), client, channelName);
+        }
+        else {
+            //send everyone in that channel
+            sendWhoMessage(_channels.find(channelName)->second.getClients(), client, channelName);
+        }
     }
 }
 

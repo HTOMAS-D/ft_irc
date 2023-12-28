@@ -43,8 +43,6 @@ void    Channel::addClient(int newClient) {
     if (_ClientOperators.size() == 0) {
         addClientToOp(newClient);
     }
-    temp << Manager::getClientByID(newClient)->getNickName() << " has been added to the channel!" << std::endl;
-    channelMessage(temp.str().c_str());
 }
 
 void    Channel::addClientToOp(int newOp) {
@@ -190,8 +188,13 @@ int Channel::IsInvited(int id) {
 }
 
 std::vector<int> &Channel::getClients() {
-return _Clients;
+    return _Clients;
 }
+
+std::vector<int> &Channel::getOps() {
+    return _ClientOperators;
+}
+
 
 void Channel::setModeI(int flag) {
     if (flag)
