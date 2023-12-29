@@ -43,18 +43,18 @@ void    Channel::addClient(int newClient) {
     if (_ClientOperators.size() == 0) {
         addClientToOp(newClient);
     }
+    else
+        updateList();
 }
 
 void    Channel::addClientToOp(int newOp) {
-    std::string temp = "You have been promoted to Operator";
     for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == newOp){
            return ;
         }
     }
-    std::cout << "client " << newOp << " promoted to op" << std::endl;
     _ClientOperators.push_back(newOp);
-    send(newOp, temp.c_str(), temp.size(), 0);
+    updateList();
 }
 
 void    Channel::addInvited(int newInvited) {
@@ -228,4 +228,10 @@ std::vector<std::string> Channel::getNamesList() {
     }
 
     return namesList;
+}
+
+void Channel::updateList() {
+    for (int i = 0; i < (int)_Clients.size(); i++) {
+        Manager::sendNamesList(_channelId, *Manager::getClientByID(_Clients[i]));
+    }
 }

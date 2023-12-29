@@ -37,6 +37,9 @@ class Channel{
 		void removeInvited(int id);
 		//other channel cmds
 
+		//update list of users in channel to everyone
+		void updateList();
+
 		void channelMessage(std::string msg);
 		void clientMessage(int client, const char *msg);
 		//GETS
