@@ -1,73 +1,5 @@
 #include "../includes/Manager.hpp"
 
-// how we receive them:
-// * JOIN group
-// * KICK user group
-// * INVITE group user
-// * TOPIC user :topico
-// * MODE action
-
-void Manager::createMap(void) {
-    _actionMap["JOIN"] = joinAction;
-    _actionMap["NICK"] = nickAction;
-    _actionMap["INVITE"] = inviteAction;
-    _actionMap["KICK"] = kickAction;
-    _actionMap["TOPIC"] = topicAction;
-    _actionMap["MODE"] = modeAction;
-	_actionMap["PRIVMSG"] = privmsgAction;
-    _actionMap["WHO"] = whoAction;
-    _actionMap["USER"] = userAction;
-    _actionMap["PASS"] = passAction;
-    _actionMap["CAP"] = capAction;
-}
-
-void Manager::passAction(Client &client) {
-    std::vector<std::string> command = client.getCommand();
-    std::string password = command[1];
-    setPassword(password);
-    sendIrcMessage(client.getId(), formatMessage(client) + " 001 " + getPassword() + " :Password set successfully");
-}
-
-//The cap command is used to negotiate capabilities between clients and servers.
-void Manager::capAction(Client &client) {
-    std::vector<std::string> command = client.getCommand();
-    std::string cap = command[1];
-    if (cap == "LS") {
-        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * LS :multi-prefix sasl");
-    }
-    else if (cap == "REQ") {
-        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * ACK :multi-prefix sasl");
-    }
-    else if (cap == "END") {
-        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * ACK :multi-prefix sasl");
-    }
-}
-
-std::string Manager::formatMessage(Client &client) {
-	return (":" + client.getNickName() + "!" + client.getUserName() + "@" + hostName);
-}
-
-std::string Manager::formatMessage(Client &client, std::string message)
-{
-	return (":" + hostName + " " + message + " " + client.getNickName());
-}
-
-void Manager::sendWhoMessage(const std::vector<int> &list, Client &client, std::string const &channelName) {
-    for (int i = 0; i < (int)list.size(); i++) {
-        Client &temp = *Manager::getClientByID(list[i]);
-        std::string status;
-        if (channelName != "*")
-            status = _channels.find(channelName)->second.IsOp(temp.getId()) ? "@" : "+";
-        sendIrcMessage(client.getId(), formatMessage(client, RPL_WHOREPLY) + " " + channelName + " localhost ft_irc " + temp.getNickName() + " H" + status + " :1 " + temp.getUserName());
-    }
-    sendIrcMessage(client.getId(), formatMessage(client, RPL_ENDOFWHO) + " " + channelName + " :End of WHO list");
-}
-
-// std::string Manager::formatMessage(Channel &_channel,  std::string &message)
-// {
-// 	return (":" + _channel.getChannelId() + " " + message + " " + _channel.getName());
-// }
-
 void Manager::joinAction(Client &client){
     std::vector<std::string> command = client.getCommand();
     std::string channelName = command[1];
@@ -99,6 +31,40 @@ void Manager::sendNamesList(const std::string &channelName, Client &client) {
     sendIrcMessage(client.getId(), namesMessage);
     // Send end of NAMES list
     sendIrcMessage(client.getId(), formatMessage(client, ENDOFNAMES) + " " + channelName + " :End of /NAMES list");
+}
+
+
+void Manager::passAction(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    std::string password = command[1];
+    setPassword(password);
+    sendIrcMessage(client.getId(), formatMessage(client) + " 001 " + getPassword() + " :Password set successfully");
+}
+
+//The cap command is used to negotiate capabilities between clients and servers.
+void Manager::capAction(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    std::string cap = command[1];
+    if (cap == "LS") {
+        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * LS :multi-prefix sasl");
+    }
+    else if (cap == "REQ") {
+        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * ACK :multi-prefix sasl");
+    }
+    else if (cap == "END") {
+        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * ACK :multi-prefix sasl");
+    }
+}
+
+void Manager::sendWhoMessage(const std::vector<int> &list, Client &client, std::string const &channelName) {
+    for (int i = 0; i < (int)list.size(); i++) {
+        Client &temp = *Manager::getClientByID(list[i]);
+        std::string status;
+        if (channelName != "*")
+            status = _channels.find(channelName)->second.IsOp(temp.getId()) ? "@" : "+";
+        sendIrcMessage(client.getId(), formatMessage(client, RPL_WHOREPLY) + " " + channelName + " localhost ft_irc " + temp.getNickName() + " H" + status + " :1 " + temp.getUserName());
+    }
+    sendIrcMessage(client.getId(), formatMessage(client, RPL_ENDOFWHO) + " " + channelName + " :End of WHO list");
 }
 
 void Manager::nickAction(Client &client)
@@ -261,27 +227,5 @@ void Manager::userAction(Client &client) {
         std::vector<std::string> command = client.getCommand();
         std::string username = command[1].substr(0, command[1].find(" "));
         client.setUserName(username);
-    }
-}
-
-int	Manager::sendIrcMessage(int clientId, std::string message)
-{
-	message = message + "\r\n";
-	std::cout << "Sending message: " << message;
-	if (send(clientId, message.c_str(), message.length(), 0) == -1)
-		exit(4);
-	return 0;
-}
-
-void Manager::runActions(Client &client){
-    (void) client;
-    std::string cmd = client.getCommand()[0];
-    std::string action = cmd;
-    std::map<std::string, eventFunction>::iterator it = _actionMap.find(action);
-    if (_actionMap.find(action) != _actionMap.end()){
-        it->second(client);
-    }
-    else{
-        Manager::sendIrcMessage(client.getId(), "421 :Unknown command");
     }
 }
