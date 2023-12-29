@@ -17,7 +17,9 @@ Socket::~Socket(){
 //GETTERS AND SETTERS
 std::string &Socket::getPort(){return this->_port;}
 std::string &Socket::getPassword(){return this->_password;}
-
+void Socket::setPassword(std::string pass){
+    this->_password = pass;
+}
 //SOCKET FUNCTIONS
 void Socket::parsePortPass(){
     if(_port.length() <= 0 || atoi(_port.c_str()) <= MIN_PORT || atoi(_port.c_str()) > MAX_PORT){
