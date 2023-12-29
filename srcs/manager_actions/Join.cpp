@@ -1,6 +1,7 @@
 #include "../../includes/Manager.hpp"
 
 void Manager::joinAction(Client &client){
+    int flagNewChan = 0;
     std::vector<std::string> command = client.getCommand();
     std::string channelName = command[1];
     if (Parser::joinParse(client)){
@@ -14,12 +15,13 @@ void Manager::joinAction(Client &client){
             return;
         }
         //Check if the channel exists, create if not
-        if (_channels.find(channelName) != _channels.end()) {
+        if (_channels.find(channelName) != _channels.end() && ++flagNewChan) {
             _channels[channelName] = Channel(channelName);
         }
         _channels[channelName].addClient(client.getId());
         sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
-        sendNamesList(channelName, client);
+        if (flagNewChan)
+            sendNamesList(channelName, client);
     }
 }
 

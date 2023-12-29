@@ -1,5 +1,4 @@
 #include "../includes/Client.hpp"
-std::string Manager::hostName;
 
 Client::Client(int id){
     _clientID = id;

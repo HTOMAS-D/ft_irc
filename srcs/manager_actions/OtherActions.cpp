@@ -5,7 +5,7 @@ void Manager::passAction(Client &client) {
     std::vector<std::string> command = client.getCommand();
     std::string password = command[1];
     setPassword(password);
-    sendIrcMessage(client.getId(), formatMessage(client, WELCOME_MESSAGE) + " :Welcome to the Internet Relay Network ");
+    //sendIrcMessage(client.getId(), formatMessage(client, WELCOME_MESSAGE) + " :Welcome to the Internet Relay Network ");
 }
 
 //The cap command is used to negotiate capabilities between clients and servers.

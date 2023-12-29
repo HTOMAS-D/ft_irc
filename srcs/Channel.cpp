@@ -48,13 +48,16 @@ void    Channel::addClient(int newClient) {
 }
 
 void    Channel::addClientToOp(int newOp) {
+    int temp = _ClientOperators.size();
     for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == newOp){
            return ;
         }
     }
     _ClientOperators.push_back(newOp);
-    updateList();
+    if (temp != 0) {
+        updateList();
+    }
 }
 
 void    Channel::addInvited(int newInvited) {

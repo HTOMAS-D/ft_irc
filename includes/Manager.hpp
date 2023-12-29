@@ -55,4 +55,5 @@ class Manager{
         static std::string &getPassword();
         static void setPassword(std::string password);
 };
+
 #endif

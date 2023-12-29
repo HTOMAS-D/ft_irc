@@ -3,9 +3,8 @@
 std::vector<Client> Manager::_clients;
 std::map<std::string, eventFunction> Manager::_actionMap;
 std::map<std::string, Channel> Manager::_channels;
-std::string hostName = "localhost";
 std::string Manager::_password;
-
+std::string Manager::hostName = "localhost";
 
 
 //CLIENT METHODS
