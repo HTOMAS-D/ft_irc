@@ -38,6 +38,8 @@ class Manager{
         static void userAction(Client &client);
         static void runActions(Client &client);
         static void privmsgAction(Client &client);
+        static void passAction(Client &client);
+        static void capAction(Client &client);
         static int	sendIrcMessage(int clientId, std::string message);
         static void sendWhoMessage(const std::vector<int> &list, Client &client, std::string const &channelName);
         static std::map<std::string, eventFunction> &getActionMap();

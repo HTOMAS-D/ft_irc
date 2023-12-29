@@ -54,6 +54,7 @@ class Socket {
 
         //GETTER AND SETTERS
         std::string &getPort();
+        void        setPassword(std::string pass);
         std::string &getPassword();
 
 		std::vector<std::string> divideString(const std::string &str, char delim);

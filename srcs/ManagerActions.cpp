@@ -17,6 +17,30 @@ void Manager::createMap(void) {
 	_actionMap["PRIVMSG"] = privmsgAction;
     _actionMap["WHO"] = whoAction;
     _actionMap["USER"] = userAction;
+    _actionMap["PASS"] = passAction;
+    _actionMap["CAP"] = capAction;
+}
+
+void Manager::passAction(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    std::string password = command[1];
+    setPassword(password);
+    sendIrcMessage(client.getId(), formatMessage(client) + " 001 " + getPassword() + " :Password set successfully");
+}
+
+//The cap command is used to negotiate capabilities between clients and servers.
+void Manager::capAction(Client &client) {
+    std::vector<std::string> command = client.getCommand();
+    std::string cap = command[1];
+    if (cap == "LS") {
+        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * LS :multi-prefix sasl");
+    }
+    else if (cap == "REQ") {
+        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * ACK :multi-prefix sasl");
+    }
+    else if (cap == "END") {
+        sendIrcMessage(client.getId(), formatMessage(client) + " CAP * ACK :multi-prefix sasl");
+    }
 }
 
 std::string Manager::formatMessage(Client &client) {
@@ -49,20 +73,32 @@ void Manager::joinAction(Client &client){
     std::string channelName = command[1];
     if (Parser::joinParse(client)){
         //Check if the client is already in the channel
-        // if (_channels.find(channelName)->second.checkClient(client.getId())) {
-        //     sendIrcMessage(client.getId(), Manager::formatMessage(client, NOTONCHANNEL));
-        //     return ;
-        // }
+        if (_channels[channelName].checkClient(client.getId())) {
+            sendIrcMessage(client.getId(), formatMessage(client, ERR_ALREADYREGISTERED) + " " + channelName + " :You're already in that channel");
+            return;
+        }
         //Check if the channel exists, create if not
-        if (_channels.find(channelName) == _channels.end()) {
-            //std::cout << "OLA" << std::endl;
-            // _channels.insert(std::make_pair<std::string, Channel>(channelName, Channel(channelName)));
+        if (_channels.find(channelName) != _channels.end()) {
             _channels[channelName] = Channel(channelName);
         }
         _channels[channelName].addClient(client.getId());
         sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
         sendNamesList(channelName, client);
     }
+}
+
+void Manager::sendNamesList(const std::string &channelName, Client &client) {
+    std::string _serverName = "my_server";
+    std::vector<std::string> namesList = _channels[channelName].getNamesList();
+    std::string namesMessage = Manager::formatMessage(client, NAMREPLY) + " = " + channelName + " :";
+    for (unsigned long i = 0; i < namesList.size(); i++) {
+        namesMessage += namesList[i];
+        if (i != namesList.size() - 1)
+            namesMessage += " ";
+    }
+    sendIrcMessage(client.getId(), namesMessage);
+    // Send end of NAMES list
+    sendIrcMessage(client.getId(), formatMessage(client, ENDOFNAMES) + " " + channelName + " :End of /NAMES list");
 }
 
 void Manager::nickAction(Client &client)
@@ -86,15 +122,19 @@ void Manager::topicAction(Client &client) {
             channelName = command[1].substr(0, command[1].find(" "));
         }
         topicMsg << ":" << hostName << " ";
+        //if there is no topic in cmd
         if ((int)command[1].find(":") < 0 && _channels.find(channelName)->second.getTopic().empty()) {
             sendIrcMessage(client.getId(), formatMessage(client, NOTOPIC) + " " + channelName + " :No topic is set");
         }
+        //if there is no topic in cmd but there is one in channel
         else if ((int)command[1].find(":") < 0) {
             sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + " " + channelName + " :" + _channels.find(channelName)->second.getTopic());
         }
+        //if there is topic in cmd but user is not op
         else if (_channels.find(channelName)->second.getModeT() && !_channels.find(channelName)->second.IsOp(client.getId())) {
             sendIrcMessage(client.getId(), formatMessage(client, NOTCHANOP) + " " + channelName + " :You're not channel operator");
         }   
+        //if there is topic in cmd and user is op
         else {
             _channels.find(channelName)->second.setTopic(topic);
             sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + " " + channelName + " :" + _channels.find(channelName)->second.getTopic());
@@ -222,22 +262,6 @@ void Manager::userAction(Client &client) {
         std::string username = command[1].substr(0, command[1].find(" "));
         client.setUserName(username);
     }
-}
-
-void Manager::sendNamesList(const std::string &channelName, Client &client) {
-    std::string _serverName = "my_server";
-    std::vector<std::string> namesList = _channels[channelName].getNamesList();
-    std::string namesMessage = Manager::formatMessage(client, NAMREPLY) + " = " + channelName + " :";
-    for (unsigned long i = 0; i < namesList.size(); i++) {
-        namesMessage += namesList[i];
-        if (i != namesList.size() - 1)
-            namesMessage += " ";
-    }
-    sendIrcMessage(client.getId(), namesMessage);
-    // Send end of NAMES list
-    std::string endOfNamesMessage = ":" + _serverName + " 366 " + \
-        Manager::formatMessage(client) + " " + channelName + " :End of /NAMES list";
-    sendIrcMessage(client.getId(), endOfNamesMessage);
 }
 
 int	Manager::sendIrcMessage(int clientId, std::string message)

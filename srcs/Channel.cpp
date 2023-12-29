@@ -114,13 +114,11 @@ void    Channel::clientMessage(int client, const char *msg) {
 }
 
 bool Channel::checkClient(int clientId) const {
-    // Iterate through the clients and check if the client is already in the channel
-    for (std::vector<int>::const_iterator it = _Clients.begin(); it != _Clients.end(); ++it) {
-        if (*it == clientId) {
-            return true; // Client is already in the channel
-        }
+    for (int i = 0; i < (int)_Clients.size(); i++) {
+        if (_Clients[i] == clientId)
+            return (true);
     }
-    return false; // Client is not in the channel
+    return (false);
 }
 
 std::string &Channel::getChannelId() {
