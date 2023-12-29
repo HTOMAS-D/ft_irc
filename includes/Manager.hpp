@@ -12,6 +12,7 @@ typedef void (*eventFunction)(Client& client);
 
 class Manager{
     private:
+        static std::string _password;
         static std::vector<Client> _clients;
         static std::map<std::string, Channel> _channels;
         static std::map<std::string, eventFunction> _actionMap;
@@ -50,5 +51,8 @@ class Manager{
         static std::string formatMessage(Client &client);
         static std::string formatMessage(Client &client, std::string message);
         //static std::string formatMessage(Channel &_channel, std::string &message);
+
+        static std::string &getPassword();
+        static void setPassword(std::string password);
 };
 #endif

@@ -1,4 +1,4 @@
-#include "../includes/Manager.hpp"
+#include "../../includes/Manager.hpp"
 
 void Manager::modeAction(Client &client) {
 	if (Parser::modeParse(client)) {

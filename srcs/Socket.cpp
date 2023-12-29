@@ -1,11 +1,12 @@
 #include "../includes/Socket.hpp"
 
 //CONSTRUCTORS AND DESTRUCTORS
-Socket::Socket(std::string port, std::string password) : _port(port), _password(password){
+Socket::Socket(std::string port, std::string password) : _port(port){
     std::cout << "Socket Constructor called" << std::endl;
     FD_ZERO(&_master); // init fd list
     FD_ZERO(&_temp); // init fd list
-    parsePortPass();
+    Manager::setPassword(password);
+    parsePortPass(port, password);
     initSocket();
     startMainLoop();
 }
@@ -14,19 +15,13 @@ Socket::~Socket(){
     std::cout << "Socket destroyed" << std::endl;
 }
 
-//GETTERS AND SETTERS
-std::string &Socket::getPort(){return this->_port;}
-std::string &Socket::getPassword(){return this->_password;}
-void Socket::setPassword(std::string pass){
-    this->_password = pass;
-}
 //SOCKET FUNCTIONS
-void Socket::parsePortPass(){
-    if(_port.length() <= 0 || atoi(_port.c_str()) <= MIN_PORT || atoi(_port.c_str()) > MAX_PORT){
+void Socket::parsePortPass(std::string port, std::string password){
+    if(port.length() <= 0 || atoi(port.c_str()) <= MIN_PORT || atoi(port.c_str()) > MAX_PORT){
         std::cout << "Invalid port" << std::endl;
         exit(1);
     }
-    if(_password.length() == 0){
+    if(password.length() == 0){
         std::cout << "Invalid Password" << std::endl;
         exit(1);
     }

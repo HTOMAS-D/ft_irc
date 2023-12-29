@@ -1,4 +1,12 @@
 #include "../includes/Manager.hpp"
+#include "manager_actions/Join.cpp"
+#include "manager_actions/Invite.cpp"
+#include "manager_actions/Kick.cpp"
+#include "manager_actions/Topic.cpp"
+#include "manager_actions/Privmsg.cpp"
+#include "manager_actions/Who.cpp"
+#include "manager_actions/Mode.cpp"
+#include "manager_actions/OtherActions.cpp"
 
 // how we receive them:
 // * JOIN group
@@ -48,6 +56,6 @@ void Manager::runActions(Client &client){
         it->second(client);
     }
     else{
-        Manager::sendIrcMessage(client.getId(), "421 :Unknown command");
+        sendIrcMessage(client.getId(), formatMessage(client, UNKNOWNCOMMAND) + " :Unknown command");
     }
 }

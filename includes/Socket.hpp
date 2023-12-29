@@ -34,7 +34,6 @@ class FileManage;
 class Socket {
     private:
         std::string _port;
-        std::string _password;
         fd_set _master; // main fd list with *listening* fd also there 
         fd_set _temp; //temp list for select()
         int _socketFd;
@@ -52,11 +51,7 @@ class Socket {
         Socket(std::string port, std::string password);
         ~Socket(); 
 
-        //GETTER AND SETTERS
-        std::string &getPort();
-        void        setPassword(std::string pass);
-        std::string &getPassword();
-
+        void parsePortPass(std::string port, std::string password);
 		std::vector<std::string> divideString(const std::string &str, char delim);
 };
 

@@ -4,7 +4,11 @@ std::vector<Client> Manager::_clients;
 std::map<std::string, eventFunction> Manager::_actionMap;
 std::map<std::string, Channel> Manager::_channels;
 std::string hostName = "localhost";
+std::string Manager::_password;
 
+
+
+//CLIENT METHODS
 void Manager::addClient(int id){
     _clients.push_back(Client(id));
     std::cout << "Client " << id << " added to Clients" << std::endl;
@@ -19,6 +23,7 @@ void Manager::removeClient(int id){
     }
 }
 
+//GETTERS
 std::vector<Client> &Manager::getClient() {
 	return (_clients);
 }
@@ -78,8 +83,29 @@ std::vector<int> Manager::getAllClientsIds() {
 	return (res);
 }
 
+std::string &Manager::getPassword() {
+	return (_password);
+}
+
+//SETTERS
+void Manager::setPassword(std::string pass) {
+	if (pass.length() > 0)
+		_password = pass;
+	else
+		std::cout << "Password is empty" << std::endl;
+}
+
+//ACTIONS
 int Manager::normalMsg(Client &client) {
 	client.getBuffer().str("PRIVMSG " + client.getChannel() + " :" + client.getBuffer().str());
 	client.setCommand(client.getBuffer().str());
 	return (1);
 }
+
+// int validChannel(std::string channelName) {
+// 	if (channelName[0] != '#')
+// 		return (0);
+// 	if (_channels[channelName].find(channelName) == _channels[channelName].end())
+// 		return (0);
+// 	return (1);
+// }
