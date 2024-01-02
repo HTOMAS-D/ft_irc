@@ -5,6 +5,7 @@ std::map<std::string, eventFunction> Manager::_actionMap;
 std::map<std::string, Channel> Manager::_channels;
 std::string Manager::_password;
 std::string Manager::hostName = "localhost";
+std::vector<std::string> Manager::_channelNames;
 
 
 //CLIENT METHODS
@@ -86,12 +87,35 @@ std::string &Manager::getPassword() {
 	return (_password);
 }
 
+std::vector<std::string> Manager::getChannelNames() {
+	return (_channelNames);
+}
+
 //SETTERS
 void Manager::setPassword(std::string pass) {
 	if (pass.length() > 0)
 		_password = pass;
 	else
 		std::cout << "Password is empty" << std::endl;
+}
+
+//CHANNEL NAMES
+void Manager::addChannelName(std::string name) {
+	_channelNames.push_back(name);
+	// std::cout << "LIST OF CHANNELS:" << std::endl;
+	// for (int i = 0; i < (int) _channelNames.size(); i++) {
+	// 	std::cout << "[" << i << "] = " <<_channelNames[i] << std::endl;
+	// }
+	// std::cout << "END OF LIST!" << std::endl;
+}
+
+//Checker for if it is client so socket can close
+int Manager::isClient(int id) {
+	for (int i = 0; i < (int)_clients.size() ; i++) {
+		if (_clients[i].getId() == id)
+			return (1);
+	}
+	return (0);
 }
 
 //ACTIONS

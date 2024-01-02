@@ -2,6 +2,7 @@
 #include "manager_actions/Join.cpp"
 #include "manager_actions/Invite.cpp"
 #include "manager_actions/Kick.cpp"
+#include "manager_actions/Quit.cpp"
 #include "manager_actions/Topic.cpp"
 #include "manager_actions/Privmsg.cpp"
 #include "manager_actions/Who.cpp"
@@ -27,6 +28,7 @@ void Manager::createMap(void) {
     _actionMap["USER"] = userAction;
     _actionMap["PASS"] = passAction;
     _actionMap["CAP"] = capAction;
+    _actionMap["QUIT"] = quitAction;
 }
 
 std::string Manager::formatMessage(Client &client) {

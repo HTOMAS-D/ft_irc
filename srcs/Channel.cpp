@@ -8,6 +8,7 @@ Channel::Channel(std::string id){
     _ModeT = 0;
     _limit = 0;
     std::cout << "Channel created with id: " << id << std::endl;
+    Manager::addChannelName(id);
 }
 
 // Channel::Channel(const Channel &src) {
@@ -30,7 +31,8 @@ Channel &Channel::operator=(const Channel &src) {
     return (*this);
 }
 
-Channel::~Channel(){}
+Channel::~Channel(){
+}
 
 void    Channel::addClient(int newClient) {
     std::stringstream temp;
@@ -75,8 +77,9 @@ void    Channel::removeClient(int id) {
             _Clients.erase(_Clients.begin() + i);
         }
     }
-    Manager::getClientByID(id)->setChannel("");
+    Manager::getClientByID(id)->setChannel(""); //problematico se client tiver em varios channels
     removeOp(id);
+    updateList();
 }
 
 void    Channel::removeOp(int id) {

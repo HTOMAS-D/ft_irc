@@ -61,6 +61,13 @@ void	Socket::handleData(int i) {
 	char buffer[BUFFER_SIZE];
 
 	bzero(buffer, sizeof(buffer));
+
+	//Client by nc has quit
+	if (!Manager::isClient(i)) {
+		close(i);
+		FD_CLR(i, &_master);
+		return ;
+	}
 	
     //Start by checking if the activity is either error or client closed connection
 	nbrBytes = recv(i, &buffer, sizeof(buffer) - 1, 0);
