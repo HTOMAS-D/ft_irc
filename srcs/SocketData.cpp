@@ -74,6 +74,7 @@ void	Socket::handleData(int i) {
 	if(nbrBytes <= 0){
 		if (nbrBytes == 0){
 			std::cout << "Client with socket " << i << " disconnected" << std::endl;
+			Manager::removeClientFromChannels(*Manager::getClientByID(i));
             Manager::removeClient(i);
 		}
 		else{

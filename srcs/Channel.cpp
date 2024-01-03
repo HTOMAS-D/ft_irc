@@ -45,21 +45,19 @@ void    Channel::addClient(int newClient) {
     if (_ClientOperators.size() == 0) {
         addClientToOp(newClient);
     }
-    else
+    else {
         updateList();
+    }
 }
 
 void    Channel::addClientToOp(int newOp) {
-    int temp = _ClientOperators.size();
     for(int i = 0; i < (int)_ClientOperators.size(); i++){
         if(_ClientOperators[i] == newOp){
            return ;
         }
     }
     _ClientOperators.push_back(newOp);
-    if (temp != 0) {
         updateList();
-    }
 }
 
 void    Channel::addInvited(int newInvited) {
@@ -78,8 +76,11 @@ void    Channel::removeClient(int id) {
         }
     }
     Manager::getClientByID(id)->setChannel(""); //problematico se client tiver em varios channels
-    removeOp(id);
-    updateList();
+    if (IsOp(id)) {
+        removeOp(id);
+    }
+    else
+        updateList();
 }
 
 void    Channel::removeOp(int id) {
@@ -91,6 +92,8 @@ void    Channel::removeOp(int id) {
     if ((int)_ClientOperators.size() == 0 && (int)_Clients.size()) {
         addClientToOp(_Clients[0]);
     }
+    else
+        updateList();
 }
 
 void    Channel::removeInvited(int id) {
@@ -171,6 +174,10 @@ std::string Channel::getChannelModes() {
     else
         modes += "+l";
     return (modes);
+}
+
+int Channel::howManyClients() {
+    return(_Clients.size());
 }
 
 int Channel::IsOp(int id) {

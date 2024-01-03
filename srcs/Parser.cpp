@@ -55,16 +55,50 @@ int Parser::nickParse(Client &client) {
     return 1;
 }
 
-//ADD MORE RESTRICTIONS TO CHANNEL NAMES
 int Parser::joinParse(Client &client)
 {
-    if (client.getCommand().size() < 2){
-        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS));
+    std::vector<std::string> command = client.getCommand();
+    std::string channelName = "";
+    std::string pass = "";
+    if (command.size() < 2){
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " JOIN ERROR :Not enough parameters");
         return 0;
     }
-    if (client.getCommand()[1][0] != '#'){
-        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS));
+    if ((int)command[1].find(" ") >= 0) {
+        pass = command[1].substr(command[1].find(" "), command[1].size());
+        channelName = command[1].substr(0, command[1].find(" "));
+    }
+    else
+        channelName = command[1];
+
+    //check channel name for #
+    if (command[1][0] != '#'){
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, BADCHANNELNAME) + " :Bad channel name");
         return 0;
+    }
+    if (Manager::getChannels().find(channelName) != Manager::getChannels().end()){
+        //check modes
+        //Check if the client is already in the channel
+        if (Manager::getChannels().find(channelName)->second.checkClient(client.getId())) {
+            Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, ERR_ALREADYREGISTERED) + " " + channelName + " :You're already in that channel");
+            return 0;
+        }
+        Channel &target = Manager::getChannels().find(channelName)->second;
+        //check if pass is correct
+        if (target.getKey().size() && target.getKey() != pass) {
+            Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, BADCHANNELKEY) + " :Bad channel key");
+            return 0;
+        }
+        //check if is invited
+        if (target.getModeI() && !target.IsInvited(client.getId())) {
+            Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, INVITEONLYCHAN) + " :Invited only channel");
+            return 0;
+        }
+        //check if is full
+        if (target.getModeL() && target.howManyClients() >= target.getModeL()) {
+            Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, CHANNELISFULL) + " :Channel is full");
+            return 0;
+        }
     }
     return 1;
 }

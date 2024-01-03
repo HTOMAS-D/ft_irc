@@ -1,27 +1,24 @@
 #include "../../includes/Manager.hpp"
 
 void Manager::joinAction(Client &client){
-    int flagNewChan = 0;
     std::vector<std::string> command = client.getCommand();
     std::string channelName = command[1];
-    if (Parser::joinParse(client)){
+    if (Parser::joinParse(client)) {
+        std::cout << "channel name = " << channelName << std::endl;
         // if (!validChannel(channelName)) {
         //     joinChannel(channelName, client);
         //     return ;
         // }
-        //Check if the client is already in the channel
-        if (_channels[channelName].checkClient(client.getId())) {
-            sendIrcMessage(client.getId(), formatMessage(client, ERR_ALREADYREGISTERED) + " " + channelName + " :You're already in that channel");
-            return;
-        }
         //Check if the channel exists, create if not
-        if (_channels.find(channelName) != _channels.end() && ++flagNewChan) {
+        if (_channels.find(channelName) == _channels.end()) {
+            std::cout << "hello" << std::endl;
             _channels[channelName] = Channel(channelName);
         }
-        _channels[channelName].addClient(client.getId());
+        //if there is topic send topic
+        if (_channels.find(channelName)->second.getTopic() != "")
+            sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + ":" + _channels.find(channelName)->second.getTopic());
         sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
-        if (flagNewChan)
-            sendNamesList(channelName, client);
+        _channels[channelName].addClient(client.getId());
     }
 }
 

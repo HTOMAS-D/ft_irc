@@ -55,6 +55,7 @@ class Channel{
 		int IsInvited(int i);
 		std::vector<int> &getClients();
 		std::vector<int> &getOps();
+		int howManyClients();
 		//SETS
 		void setKey(std::string pass) {_key = pass;}
 		void setTopic(std::string topic) {_topic = topic;}
