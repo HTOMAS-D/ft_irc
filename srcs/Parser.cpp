@@ -288,7 +288,6 @@ int Parser::modeParse(Client &client) {
             return (0);
         }
     }
-    std::cout << "index =" << (int)arg.find_first_not_of("0123456789", 0) << std::endl;
     // f flag has to be numeric +
     if (flag[1] == 'l' && (int)arg.find_first_not_of("0123456789", 0) >= 0) {
         Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " MODE ERROR :Numeric only");

@@ -190,8 +190,8 @@ int Channel::IsOp(int id) {
 }
 
 int Channel::IsInvited(int id) {
-	for(int i = 0; i < (int)_ClientOperators.size(); i++){
-        if(_ClientOperators[i] == id){
+	for(int i = 0; i < (int)_invited.size(); i++){
+        if(_invited[i] == id){
             return (1);
         }
     }
@@ -209,16 +209,16 @@ std::vector<int> &Channel::getOps() {
 
 void Channel::setModeI(int flag) {
     if (flag)
-        _ModeI = 0;
-    else
         _ModeI = 1;
+    else
+        _ModeI = 0;
 }
 
 void Channel::setModeT(int flag) {
     if (flag)
-        _ModeT = 0;
-    else
         _ModeT = 1;
+    else
+        _ModeT = 0;
 }
 
 void Channel::setModeL(int flag) {

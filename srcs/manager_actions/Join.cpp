@@ -14,10 +14,11 @@ void Manager::joinAction(Client &client){
             std::cout << "hello" << std::endl;
             _channels[channelName] = Channel(channelName);
         }
-        //if there is topic send topic
-        if (_channels.find(channelName)->second.getTopic() != "")
-            sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + ":" + _channels.find(channelName)->second.getTopic());
         sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
+        //if there is topic send topic
+        if (_channels.find(channelName)->second.getTopic() != "") {
+            sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + " " + channelName + " :" + _channels.find(channelName)->second.getTopic());
+        }
         _channels[channelName].addClient(client.getId());
     }
 }
