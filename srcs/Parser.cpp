@@ -48,7 +48,8 @@ int Parser::nickParse(Client &client) {
     }
     for (int i = 0; i < (int)Manager::getClient().size(); i++) {
         if (Manager::getClient()[i].getNickName() == nick) {
-                Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NICKNAMEINUSE) + " " + nick + " :Nickname is already in use");
+                client.setLastNick(nick);
+                Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NICKNAMEINUSE) + nick + " :Nickname is already in use");
             return 0;
         }
     }
@@ -65,14 +66,14 @@ int Parser::joinParse(Client &client)
         return 0;
     }
     if ((int)command[1].find(" ") >= 0) {
-        pass = command[1].substr(command[1].find(" "), command[1].size());
+        pass = command[1].substr(command[1].find(" ") + 1, command[1].size());
         channelName = command[1].substr(0, command[1].find(" "));
     }
     else
         channelName = command[1];
 
-    //check channel name for #
-    if (command[1][0] != '#'){
+    //check channel name for # and spaces
+    if (command[1][0] != '#' || (int)channelName.find(" ") >= 0){
         Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, BADCHANNELNAME) + " :Bad channel name");
         return 0;
     }
@@ -86,6 +87,7 @@ int Parser::joinParse(Client &client)
         Channel &target = Manager::getChannels().find(channelName)->second;
         //check if pass is correct
         if (target.getKey().size() && target.getKey() != pass) {
+            std::cout << "pass = " << target.getKey() << "; trying pass: " << pass << std::endl;
             Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, BADCHANNELKEY) + " :Bad channel key");
             return 0;
         }

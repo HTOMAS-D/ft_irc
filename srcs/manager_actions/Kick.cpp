@@ -12,7 +12,7 @@ void Manager::kickAction(Client &client) {
             user = user.substr(0, user.find(" "));
         }
         std::stringstream kickMsg;
-        kickMsg << client.getNickName() << " KICK " << _channels.find(channelName)->second.getChannelId() \
+        kickMsg << ":" << client.getNickName() << " KICK " << _channels.find(channelName)->second.getChannelId() \
         << " " << user;
         if (comment.empty()) {
             kickMsg << " :No reason given.";

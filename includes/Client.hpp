@@ -8,6 +8,7 @@ class Client{
 		std::stringstream _buffer;
 		int _clientID;
 		std::string _nickName;
+		std::string _lastTriedNick;
 		std::string _userName;
 		std::vector<std::string> _cmd;
 		std::string _channel;
@@ -26,12 +27,14 @@ class Client{
 		std::string 	  &getUserName() ;
         int 			  getId() ;
 		std::stringstream &getBuffer() ;
+		std::string &getLastNick();
 		std::string 	  getClientPrefix() ;
 		std::vector<std::string> getCommand( void ) ;
 
 		//Setters
 		void setChannel(std::string channel);
 		void setNickName(std::string nickName);
+		void setLastNick(std::string lastNick);
 		void setUserName(std::string userName);
 		void setHostName(std::string hostname);
 		void setCommand(std::string cmd);

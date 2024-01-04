@@ -5,6 +5,7 @@ Client::Client(int id){
     _nickName = "";
     _userName = "";
     _channel = "";
+    _lastTriedNick = "";
     std::cout << "Client created with id: " << id << std::endl;
 }
 
@@ -15,6 +16,7 @@ Client &Client::operator=(const Client &src) {
     _nickName = src._nickName;
     _userName = src._userName;
     _channel = src._channel;
+    _lastTriedNick = src._lastTriedNick;
     _cmd = src._cmd;
     return *this;
 }
@@ -47,6 +49,10 @@ std::string &Client::getChannel()  {
     return _channel;
 }
 
+std::string &Client::getLastNick() {
+    return _lastTriedNick;
+}
+
 std::string Client::getClientPrefix()  {
     std::string clientPrefix = getNickName() + "!" + \
         getUserName() + "@" + Manager::hostName;
@@ -65,6 +71,10 @@ void Client::setUserName(std::string userName) {
 
 void Client::setHostName(std::string hostname) {
     _hostname = hostname;
+}
+
+void Client::setLastNick(std::string lastNick) {
+    _lastTriedNick = lastNick;
 }
 
 void Client::setCommand(std::string cmd) {

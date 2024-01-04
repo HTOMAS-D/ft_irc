@@ -38,7 +38,11 @@ void Manager::nickAction(Client &client)
 {
     if (Parser::nickParse(client)) 
     {
-        sendIrcMessage(client.getId(), ":" + client.getNickName() + " NICK :" + client.getCommand()[1]);
+        //1 for normal cases, 2 for cases that tried a nick and didnt work
+        if (client.getNickName() != "")
+            sendIrcMessage(client.getId(), ":" + client.getNickName() + " NICK :" + client.getCommand()[1]);
+        else
+            sendIrcMessage(client.getId(), ":" + client.getLastNick() + " NICK :" + client.getCommand()[1]);
         client.setNickName(client.getCommand()[1]);
     }
 }

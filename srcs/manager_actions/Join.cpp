@@ -4,17 +4,15 @@ void Manager::joinAction(Client &client){
     std::vector<std::string> command = client.getCommand();
     std::string channelName = command[1];
     if (Parser::joinParse(client)) {
-        std::cout << "channel name = " << channelName << std::endl;
-        // if (!validChannel(channelName)) {
-        //     joinChannel(channelName, client);
-        //     return ;
-        // }
+        if ((int)command[1].find(" ") >= 0)
+            channelName = command[1].substr(0, command[1].find(" "));
+        else
+            channelName = command[1];
         //Check if the channel exists, create if not
         if (_channels.find(channelName) == _channels.end()) {
-            std::cout << "hello" << std::endl;
             _channels[channelName] = Channel(channelName);
         }
-        sendIrcMessage(client.getId(), formatMessage(client) + " JOIN " + channelName);
+        sendIrcMessage(client.getId(), formatMessage(client) + " JOIN :" + channelName);
         //if there is topic send topic
         if (_channels.find(channelName)->second.getTopic() != "") {
             sendIrcMessage(client.getId(), formatMessage(client, TOPIC_CHANNEL) + " " + channelName + " :" + _channels.find(channelName)->second.getTopic());
