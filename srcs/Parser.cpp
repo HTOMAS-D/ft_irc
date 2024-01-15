@@ -36,7 +36,7 @@ int Parser::nickParse(Client &client) {
 	    Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NEEDMOREPARAMS) + " NICK ERROR :Not enough parameters");
 	    return 0;
 	}
-    if (command[1].size() == 1) {
+    if (command[1].size() == 0) {
         Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, NONICKNAMEGIVEN));
         return 0;
     }
@@ -72,9 +72,20 @@ int Parser::joinParse(Client &client)
     else
         channelName = command[1];
 
+
+    // too many channels
+    if ((int)command[1].find(",") != -1){
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, TOOMANYCHANNELS) + " :Too many channels");
+        return 0;
+    }
     //check channel name for # and spaces
     if (command[1][0] != '#' || (int)channelName.find(" ") >= 0){
         Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, BADCHANNELNAME) + " :Bad channel name");
+        return 0;
+    }
+    //no nick cant join
+    if (client.getNickName() == ""){
+        Manager::sendIrcMessage(client.getId(), Manager::formatMessage(client, ERRONEUSNICKNAME) + " :Can't join without Nickname");
         return 0;
     }
     if (Manager::getChannels().find(channelName) != Manager::getChannels().end()){
