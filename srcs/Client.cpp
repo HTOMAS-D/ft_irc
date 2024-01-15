@@ -101,6 +101,7 @@ void Client::setregularCommand(std::string cmd) {
     _cmd.clear();
     if (cmd[0] == '/')
         cmd.erase(0, 1);
+    
     // std::cout << "antes cmd = " << cmd << std::endl;
     // std::string holder = Parser::toUpper(cmd.substr(0, cmd.find(" ")));
     _cmd.push_back(cmd);

@@ -20,7 +20,6 @@ void Manager::privmsgAction(Client &client)
     // If everything is okay, send the message to the target
     if (targetName[0] == '#') {
         std::string channelName = targetName;
-        std::cout << "pre msg send to " << channelName << std::endl;
         //Broadcast the message to all members of the channel
         std::string formatmsg = formatMessage(client) + " PRIVMSG " + targetName + " :" + msg;
         if (_channels[channelName].checkClient(client.getId()))
